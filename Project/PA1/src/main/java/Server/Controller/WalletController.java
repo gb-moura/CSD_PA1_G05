@@ -35,7 +35,7 @@ public interface WalletController {
             consumes = APPLICATION_JSON_VALUE)
     void transferMoney(@RequestBody Transaction transaction);
 
-    @PostMapping(
+    @GetMapping(
             value =  GET_MONEY,
             produces = APPLICATION_JSON_VALUE)
     Long currentAmount(@PathVariable("id") String id);

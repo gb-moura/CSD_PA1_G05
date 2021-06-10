@@ -1,13 +1,15 @@
 package Server.Util;
 
 // import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+
 import java.io.Serializable;
 
 //@Entity
 //@Table
 public class UserAccount implements Serializable {
 
- //  @Id
+   @Id
     private String id;
 
     // @Column(name = "money", nullable = false)

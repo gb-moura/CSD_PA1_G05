@@ -2,6 +2,8 @@ package Server.Util;
 
 
 //import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+
 import java.io.Serializable;
 
 //@Entity
@@ -10,7 +12,8 @@ public class Transaction implements Serializable {
 
     //@Id
    // @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Id
+    private String id;
 
   //  @Column(name="valueFrom", nullable = false)
     private String from;

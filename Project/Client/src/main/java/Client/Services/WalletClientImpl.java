@@ -1,5 +1,6 @@
 package Client.Services;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -32,21 +33,17 @@ public class WalletClientImpl implements WalletClient {
     private String BASE = "http://localhost:8080";
 
 
-
     String OBTAIN_MONEY = "/obtain";
     String TRANSFER_MONEY = "/transfer";
     String GET_MONEY = "/current";
     String GET_LEDGER = "/ledger";
-    String GET_CLIENT_LEDGER = GET_LEDGER + "/{id}";
+
 
     private RestTemplate restTemplate;
 
 
-
-
-
     @Autowired
-    public WalletClientImpl(RestTemplateBuilder restTemplateBuilder,Environment env) {
+    public WalletClientImpl(RestTemplateBuilder restTemplateBuilder, Environment env) {
 
         restTemplate = restTemplateBuilder
                 .errorHandler(new RestTemplateResponseErrorHandler()).rootUri("http://localhost:8080")
@@ -59,42 +56,40 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public void obtainCoins(String toUser, Long amount)  {
-        Transaction transaction = new Transaction(toUser,amount);
-        ResponseEntity<String> response = restTemplate.postForEntity(BASE+OBTAIN_MONEY, transaction, String.class);
-
+    public ResponseEntity<String>  obtainCoins(String toUser, Long amount) {
+        Transaction transaction = new Transaction(toUser, amount);
+        ResponseEntity<String> response = restTemplate.postForEntity(BASE + OBTAIN_MONEY, transaction, String.class);
+        return response;
     }
 
     @Override
-    public void transferMoney(String fromUser, String toUser, Long amount)  {
-        Transaction transaction = new Transaction(fromUser,toUser,amount);
+    public ResponseEntity<String>  transferMoney(String fromUser, String toUser, Long amount) {
+        Transaction transaction = new Transaction(fromUser, toUser, amount);
         ResponseEntity<String> response = restTemplate.postForEntity(BASE + TRANSFER_MONEY, transaction, String.class);
-
+        return response;
     }
 
     @Override
-    public void currentAmount(String userID) {
-        ResponseEntity<String> response = restTemplate.getForEntity(BASE + GET_MONEY + userID, String.class);
-
+    public ResponseEntity<String> currentAmount(String userID) {
+        ResponseEntity<String> response = restTemplate.getForEntity(BASE + GET_MONEY + "/" + userID, String.class);
+        return response;
     }
 
     @Override
-   public void ledgerOfGlobalTransfers() {
-       getLedgerFromPath(BASE+GET_LEDGER);
-
-
+    public ResponseEntity<String> ledgerOfGlobalTransfers() {
+        return getLedgerFromPath(BASE + GET_LEDGER);
     }
 
     @Override
-   public void LedgerOfClientTransfers(String userId)  {
-       getLedgerFromPath(BASE + GET_LEDGER + userId);
+    public ResponseEntity<String> LedgerOfClientTransfers(String userId) {
+        ResponseEntity<String> response = getLedgerFromPath(BASE + GET_LEDGER + "/" + userId);
+        return response;
     }
 
-    private void getLedgerFromPath(String path)  {
+    private ResponseEntity<String> getLedgerFromPath(String path) {
         ResponseEntity<String> response = restTemplate.getForEntity(path, String.class);
-        System.out.println(response.getBody().toString());
-
-
+        return response;
     }
+
 
 }
