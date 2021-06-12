@@ -282,3 +282,6 @@
 1623457182055:client-ledger gbmoura
 1623457193333:client-ledger rsales
 1623457201631:client-ledger SYSTEM
+1623461054288:obtain-money rsales 200
+1623461100756:stacktrace
+1623461213115:obtain-money rsales 200
