@@ -1,31 +1,25 @@
 
 package Server.Controller;
 
-import Server.Exceptions.InsufficientFundsForTransactionException;
+
 import Server.Exceptions.TransactionAmountNotValidException;
 import Server.Exceptions.UserDoesNotExistException;
-//import Server.Repository.TransactionRepository;
 import Server.Repositories.UsersRepository;
 import Server.Repositories.WalletRepository;
 import Server.Util.Transaction;
 import Server.Util.UserAccount;
-import ch.qos.logback.core.encoder.EchoEncoder;
-import org.apache.catalina.User;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
-//import Server.Repository.UserAccountRepository;
-
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+
+
+//@RestController()
+@Service("ImpWallet")
 public class WalletControllerImpl implements WalletController {
 
     public static final String SYSTEM_RESERVED_USER = "SYSTEM";
@@ -56,7 +50,7 @@ public class WalletControllerImpl implements WalletController {
 
     private UserAccount getOrCreateUser (String userId) {
         try {
-            //return new UserCommonsImpl().getUserAccount(userId);
+
             Optional<UserAccount> user = userRep.findById(userId);
             return user.orElseThrow(()->new UserDoesNotExistException(userId));
         } catch (UserDoesNotExistException e) {
@@ -82,13 +76,9 @@ public class WalletControllerImpl implements WalletController {
 
         accountTo.addMoney(transaction.getAmount());
         accountFrom.addMoney(transaction.getAmount()*-1);
-
-
         userRep.save(accountTo);
         userRep.save(accountFrom);
         walletRep.save(transaction);
-
-
     }
 
 
@@ -120,7 +110,7 @@ public class WalletControllerImpl implements WalletController {
         List<Transaction> clientTransactions = new ArrayList<>();
         List<Transaction> transactions = walletRep.findAll();
         for(Transaction t: transactions){
-            if(t.getFrom().equals(id)){
+            if(t.getFrom().equals(id) || t.getTo().equals(id)){
                 clientTransactions.add(t);
             }
         }

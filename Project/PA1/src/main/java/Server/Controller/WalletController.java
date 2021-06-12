@@ -3,19 +3,20 @@ package Server.Controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import Server.Util.Transaction;
-import Server.Util.UserAccount;
+
 
 
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RestController
-public interface WalletController {
+
+public interface
+WalletController {
 
 
 
-
+    String BASE_URL = "/money";
     String OBTAIN_COINS ="/obtain" ;
     String TRANSFER_MONEY = "/transfer";
     String GET_MONEY = "/current/{id}";

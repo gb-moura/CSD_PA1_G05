@@ -30,13 +30,15 @@ import java.util.List;
 public class WalletClientImpl implements WalletClient {
 
 
-    private String BASE = "http://localhost:8080";
 
+    @Value("${client.server.url}")
+    private String BASE;
 
-    String OBTAIN_MONEY = "/obtain";
-    String TRANSFER_MONEY = "/transfer";
-    String GET_MONEY = "/current";
-    String GET_LEDGER = "/ledger";
+    private static String WALLET_CONTROLLER =  "/money";
+    private static String OBTAIN_MONEY = "/obtain";
+    private static String TRANSFER_MONEY = "/transfer";
+    private static String GET_MONEY = "/current";
+    private static String GET_LEDGER = "/ledger";
 
 
     private RestTemplate restTemplate;
@@ -46,7 +48,7 @@ public class WalletClientImpl implements WalletClient {
     public WalletClientImpl(RestTemplateBuilder restTemplateBuilder, Environment env) {
 
         restTemplate = restTemplateBuilder
-                .errorHandler(new RestTemplateResponseErrorHandler()).rootUri("http://localhost:8080")
+                .errorHandler(new RestTemplateResponseErrorHandler()).rootUri(BASE)
                 .build();
 
     }
@@ -58,31 +60,32 @@ public class WalletClientImpl implements WalletClient {
     @Override
     public ResponseEntity<String>  obtainCoins(String toUser, Long amount) {
         Transaction transaction = new Transaction(toUser, amount);
-        ResponseEntity<String> response = restTemplate.postForEntity(BASE + OBTAIN_MONEY, transaction, String.class);
+        System.out.println(BASE+OBTAIN_MONEY);
+        ResponseEntity<String> response = restTemplate.postForEntity(BASE +WALLET_CONTROLLER+ OBTAIN_MONEY, transaction, String.class);
         return response;
     }
 
     @Override
     public ResponseEntity<String>  transferMoney(String fromUser, String toUser, Long amount) {
         Transaction transaction = new Transaction(fromUser, toUser, amount);
-        ResponseEntity<String> response = restTemplate.postForEntity(BASE + TRANSFER_MONEY, transaction, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(BASE +WALLET_CONTROLLER+ TRANSFER_MONEY, transaction, String.class);
         return response;
     }
 
     @Override
     public ResponseEntity<String> currentAmount(String userID) {
-        ResponseEntity<String> response = restTemplate.getForEntity(BASE + GET_MONEY + "/" + userID, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(BASE +WALLET_CONTROLLER+ GET_MONEY + "/" + userID, String.class);
         return response;
     }
 
     @Override
     public ResponseEntity<String> ledgerOfGlobalTransfers() {
-        return getLedgerFromPath(BASE + GET_LEDGER);
+        return getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER);
     }
 
     @Override
     public ResponseEntity<String> LedgerOfClientTransfers(String userId) {
-        ResponseEntity<String> response = getLedgerFromPath(BASE + GET_LEDGER + "/" + userId);
+        ResponseEntity<String> response = getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER + "/" + userId);
         return response;
     }
 

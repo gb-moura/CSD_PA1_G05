@@ -255,3 +255,30 @@
 1623346482304:obtain-money gbmoura 100
 1623346494127:stacktrace
 1623346645956:obtain-money gbmoura 100
+1623362406401:transfer-money gbmoura fagomes 10
+1623362411581:stacktrace
+1623362682653:transfer-money gbmoura fagomes 10
+1623362789988:obtain-money gbmoura 100.
+1623362792690:obtain-money gbmoura 100
+1623362901201:transfer-money gbmoura fagomes 10
+1623364052673:stacktrace
+1623364063292:obtain-money gbmoura 100
+1623364068270:stacktrace
+1623364117879:obtain-money gbmoura 100
+1623364124607:stacktrace
+1623364442782:obtain-money gbmoura 100
+1623365187096:transfer-money gbmoura fagomes 10
+1623365204697:transfer-money fagomes gbmoura 10
+1623365210200:ledger
+1623365230801:client-ledger fagomes
+1623441275223:obtain-money gbmoura 10
+1623455884383:stacktrace
+1623456342287:obtain-money gbmoura 10
+1623456359601:stacktrace
+1623456763647:obtain-money gbmoura 10
+1623457122024:obtain-money rsales 200
+1623457143810:transfer-money gbmoura rsales 200
+1623457162688:current-amount gbmoura
+1623457182055:client-ledger gbmoura
+1623457193333:client-ledger rsales
+1623457201631:client-ledger SYSTEM
