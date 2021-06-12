@@ -43,10 +43,15 @@ public class WalletClientImpl implements WalletClient {
 
     private RestTemplate restTemplate;
 
-
+    static {
+        //For localhost testing only
+        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+                (hostname,sslSession) -> {return true;});
+    }
     @Autowired
     public WalletClientImpl(RestTemplateBuilder restTemplateBuilder, Environment env) {
-
+        System.setProperty("javax.net.ssl.trustStore", env.getProperty("client.ssl.trust-store"));
+        System.setProperty("javax.net.ssl.trustStorePassword",env.getProperty("client.ssl.trust-store-password"));
         restTemplate = restTemplateBuilder
                 .errorHandler(new RestTemplateResponseErrorHandler()).rootUri(BASE)
                 .build();
