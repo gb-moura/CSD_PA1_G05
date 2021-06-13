@@ -19,8 +19,6 @@ import Server.Util.*;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
 
 @PropertySource("classpath:application.properties")
 @Component
@@ -75,57 +73,32 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 				case OBTAIN_COINS:
 					walletController.obtainCoins((Transaction)objIn.readObject());
 					logger.info("Successfully completed createMoney");
-					objOut.writeObject(new VoidWrapper());
+					objOut.writeObject(new VoidObject());
 					counter++;
 					break;
 				case TRANSFER_MONEY:
 					walletController.transferMoney((Transaction)objIn.readObject());
 					logger.info("Successfully completed transferMoneyBetweenUsers");
-					objOut.writeObject(new VoidWrapper());
+					objOut.writeObject(new VoidObject());
 					counter++;
-					/*objOut.
-						writeObject(InvokerWrapper.catchInvocation(
-								() -> {
-									walletController.transferMoney((Transaction)objIn.readObject());
-									logger.info("Successfully completed transferMoneyBetweenUsers");
-									return new VoidWrapper();
-								}
-						));*/
+
 					break;
 
 				case GET_MONEY:
 					Long result = walletController.currentAmount((String)objIn.readObject());
 					objOut.writeObject(result);
 					logger.info("Successfully completed currentAmount");
-					/*objOut.
-						writeObject(InvokerWrapper.catchInvocation(
-								() -> {
-									//TODO log first?
-									logger.info("Successfully completed currentAmount");
-									return walletController.currentAmount((String)objIn.readObject());
-								}
-						));*/
+
 					break;
 				case GET_LEDGER:
-					//objOut.writeObject( walletController.ledgerOfGlobalTransactions().toArray());
-					//logger.info("Successfully completed ledgerOfClientTransfers");
-					 objOut.
-						writeObject(InvokerWrapper.catchInvocation(
-							() -> {
-								logger.info("Successfully completed ledgerOfGlobalTransfers");
-								return walletController.ledgerOfGlobalTransactions().toArray();
-							}
-						));
+
+					objOut.writeObject( walletController.ledgerOfGlobalTransactions());
+					logger.info("Successfully completed ledgerOfClientTransfers");
+
 					break;
 				case GET_CLIENT_LEDGER:
-					objOut.
-							writeObject(InvokerWrapper.catchInvocation(
-									() -> {
-										logger.info("Successfully completed ledgerOfClientTransfers " + ID);
-										return walletController.
-												ledgerOfClientTransfers((String)objIn.readObject()).toArray();
-									}
-							));
+					objOut.writeObject(walletController.ledgerOfClientTransfers((String)objIn.readObject()));
+					logger.info("Successfully completed ledgerOfClientTransfers");
 					break;
 
 

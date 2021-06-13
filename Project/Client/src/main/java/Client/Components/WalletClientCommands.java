@@ -33,7 +33,7 @@ public class WalletClientCommands {
 
         ResponseEntity<String> response = client.obtainCoins(toUser,amount);
         if (!response.getStatusCode().is2xxSuccessful()) {
-            return "Something went wrong";
+            return  "Something went wrong with the error: " + response.getStatusCode();
         }
         return "Money added to "+ toUser + " successfully" ;
     }
@@ -43,6 +43,10 @@ public class WalletClientCommands {
     {
 
         ResponseEntity<String> response = client.transferMoney(fromUser, toUser, amount);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return  "Something went wrong with the error: " + response.getStatusCode();
+        }
+
         return "Money was transferred to " + toUser+".\n" + "Money was transferred from " + fromUser +".\n" + "Amount: " + amount ;
 
     }
@@ -62,30 +66,26 @@ public class WalletClientCommands {
     @ShellMethod("See the provided user money")
     public String ledger() {
         try {
-            return tryToLedger();
+            return transformListOfTransactionInString(
+                    client.ledgerOfGlobalTransfers());
         } catch (ServerAnswerException e) {
             return e.getMessage();
         }
     }
 
-    private String tryToLedger() throws ServerAnswerException {
-        return transformListOfTransactionInString(
-                client.ledgerOfGlobalTransfers());
-    }
+
 
     @ShellMethod("See the provided user money")
     public String clientLedger(@ShellOption() String id) {
         try {
-            return tryToClientLedger(id);
+            return transformListOfTransactionInString(
+                    client.LedgerOfClientTransfers(id));
         } catch (ServerAnswerException e) {
             return e.getMessage();
         }
     }
 
-    private String tryToClientLedger(String id) throws ServerAnswerException {
-        return transformListOfTransactionInString(
-                client.LedgerOfClientTransfers(id));
-    }
+
 
     private String transformListOfTransactionInString(List<Transaction> transactionsList){
         if (transactionsList.isEmpty())

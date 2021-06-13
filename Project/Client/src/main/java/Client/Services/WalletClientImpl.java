@@ -96,11 +96,10 @@ public class WalletClientImpl implements WalletClient {
     }
 
     private List<Transaction> getLedgerFromPath(String path) throws ServerAnswerException {
-      /*  System.out.println(path);
         Transaction[] transactions = null;
         ResponseEntity<String> response = restTemplate.getForEntity(path, String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
-            System.out.println("ERRO CODE      "+response.getStatusCode());
+
             JSONObject obj = new JSONObject(response.getBody());
             String message = (String) obj.get("message");
             throw new ServerAnswerException(message);
@@ -108,13 +107,8 @@ public class WalletClientImpl implements WalletClient {
             transactions =new Gson().fromJson(response.getBody(), Transaction[].class);
 
         }
-
-        return Arrays.asList(transactions);*/
-
-        ResponseEntity<String> response = restTemplate.getForEntity(path, String.class);
-        Transaction[] transactions = new HandleServerAnswer<Transaction[]>().
-                processServerAnswer(response, Transaction[].class);
         return Arrays.asList(transactions);
+
     }
 
 
