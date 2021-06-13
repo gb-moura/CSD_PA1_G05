@@ -1,5 +1,8 @@
 package Server.Controller;
 
+import Server.Replication.ClientReplicator;
+import Server.Replication.InvokerWrapper;
+import Server.Replication.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import Server.Util.Transaction;
-import Server.Util.UserAccount;
-import Server.Util.VoidWrapper;
-import Server.Replication.*;
+import Server.Util.*;
 
 import java.util.List;
 
@@ -31,39 +31,42 @@ public class WalletControllerReplicatorImp implements WalletController {
     @Override
     public void obtainCoins(Transaction transaction) {
         logger.info("Proxy received request createMoney");
-        InvokerWrapper<VoidWrapper> result =
-                clientReplicator.invokeOrderedReplication(transaction,Path.OBTAIN_COINS);
-        result.getResultOrThrow();
+       //InvokerWrapper<VoidWrapper> result =
+                clientReplicator.invokeOrderedReplication(transaction, Path.OBTAIN_COINS);
+       //result.getResultOrThrow();
     }
 
     @Override
-    public void transferMoney (Transaction transaction) {
+    public void transferMoney(Transaction transaction) {
         logger.info("Proxy received request transferMoneyBetweenUsers");
-        InvokerWrapper<VoidWrapper> result =
-            clientReplicator.invokeOrderedReplication(transaction,Path.TRANSFER_MONEY);
-        result.getResultOrThrow();
+       // InvokerWrapper<VoidWrapper> result =
+                clientReplicator.invokeOrderedReplication(transaction,Path.TRANSFER_MONEY);
+      //  result.getResultOrThrow();
     }
+
 
 
     @Override
     public Long currentAmount(String userId) {
         logger.info("Proxy received request currentAmount");
-        InvokerWrapper<Long> result=
-            clientReplicator.invokeUnorderedReplication(userId, Path.GET_MONEY);
-        return result.getResultOrThrow();
+      //  InvokerWrapper<Long> result=
+               return  clientReplicator.invokeUnorderedReplication(userId, Path.GET_MONEY);
+       // return result.getResultOrThrow();
     }
 
     @Override
     public List<Transaction> ledgerOfGlobalTransactions() {
-        logger.info("Proxy received request ledgerOfClientTransfers");
-        return new GenericListResults<Transaction, Void>(clientReplicator)
+        logger.info("Proxy received request ledgerOfGlobalTransfers");
+       return new GenericListResults<Transaction, Void>(clientReplicator)
                 .getListWithPath(Path.GET_LEDGER);
+      //  return clientReplicator.invokeUnorderedReplication(Path.GET_LEDGER);
     }
 
     @Override
     public List<Transaction> ledgerOfClientTransfers(String userId) {
-        logger.info("Proxy received request ledgerOfClientTransfers");
-        return new GenericListResults<Transaction, String>(clientReplicator)
+        logger.info("Proxy received request ledgerOfClientTransfers " + userId);
+       return new GenericListResults<Transaction, String>(clientReplicator)
                 .getListWithPath(userId,Path.GET_CLIENT_LEDGER);
+        //return clientReplicator.invokeUnorderedReplication(userId,Path.GET_CLIENT_LEDGER);
     }
 }

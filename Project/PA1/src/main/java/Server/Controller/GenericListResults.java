@@ -2,6 +2,7 @@ package Server.Controller;
 
 import Server.Replication.*;
 
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,8 +19,9 @@ public class GenericListResults<E, V> {
     }
 
     public List<E> getListWithPath (V args, Path path) {
-        InvokerWrapper<E[]> auctions = clientReplicator.
+        System.out.println("PATH     " + path);
+        InvokerWrapper<E[]> wallets = clientReplicator.
                 invokeUnorderedReplication(args, path);
-        return Arrays.asList(auctions.getResultOrThrow());
+        return Arrays.asList(wallets.getResultOrThrow());
     }
 }

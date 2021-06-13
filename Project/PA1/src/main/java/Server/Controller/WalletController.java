@@ -21,7 +21,7 @@ WalletController {
     String TRANSFER_MONEY = "/transfer";
     String GET_MONEY = "/current/{id}";
     String GET_LEDGER = "/ledger";
-    String GET_CLIENT_LEDGER = GET_LEDGER + "/{id}";
+    String GET_CLIENT_LEDGER = "/ledger/{id}";
 
     @PostMapping(
             value = OBTAIN_COINS,

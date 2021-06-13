@@ -14,7 +14,7 @@ public interface WalletClient {
 
     ResponseEntity<String> currentAmount(String userID) ;
 
-    ResponseEntity<String>  ledgerOfGlobalTransfers() ;
+   List<Transaction>  ledgerOfGlobalTransfers() throws ServerAnswerException;
 
-    ResponseEntity<String>  LedgerOfClientTransfers(String userId) ;
+    List<Transaction>  LedgerOfClientTransfers(String userId) throws ServerAnswerException;
 }

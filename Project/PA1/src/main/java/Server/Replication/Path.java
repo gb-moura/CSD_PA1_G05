@@ -6,5 +6,4 @@ public enum Path {
         GET_MONEY,
         GET_LEDGER,
         GET_CLIENT_LEDGER;
-
     }

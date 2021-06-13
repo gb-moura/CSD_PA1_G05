@@ -13,6 +13,8 @@ import Client.Util.Transaction;
 import Client.Services.WalletClient;
 import Client.Exceptions.ServerAnswerException;
 
+import java.util.List;
+
 @NONAUTO
 @ShellComponent
 public class WalletClientCommands {
@@ -57,27 +59,46 @@ public class WalletClientCommands {
     }
 
 
-    @ShellMethod("See the global ledger of transactions")
-    public void ledger() throws ServerAnswerException{
-
-        ResponseEntity<String> response =  client.ledgerOfGlobalTransfers();
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            System.out.println("Something went wrong");
-        }else {
-            System.out.println(response.getBody().toString());
+    @ShellMethod("See the provided user money")
+    public String ledger() {
+        try {
+            return tryToLedger();
+        } catch (ServerAnswerException e) {
+            return e.getMessage();
         }
-
     }
 
-    @ShellMethod("See the legder of a specific user transactions")
-    public void clientLedger(@ShellOption() String id) throws ServerAnswerException {
-        ResponseEntity<String> response= client.LedgerOfClientTransfers(id);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            System.out.println("Something went wrong");
-        }else {
-            System.out.println(response.getBody().toString());
+    private String tryToLedger() throws ServerAnswerException {
+        return transformListOfTransactionInString(
+                client.ledgerOfGlobalTransfers());
+    }
+
+    @ShellMethod("See the provided user money")
+    public String clientLedger(@ShellOption() String id) {
+        try {
+            return tryToClientLedger(id);
+        } catch (ServerAnswerException e) {
+            return e.getMessage();
+        }
+    }
+
+    private String tryToClientLedger(String id) throws ServerAnswerException {
+        return transformListOfTransactionInString(
+                client.LedgerOfClientTransfers(id));
+    }
+
+    private String transformListOfTransactionInString(List<Transaction> transactionsList){
+        if (transactionsList.isEmpty())
+            return "No transactions performed.";
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("Ledger:\n");
+
+        for(Transaction transaction : transactionsList){
+            stringBuffer.append(String.format("Transfer from %s to %s of %d\n",
+                    transaction.getFrom(),transaction.getTo(),transaction.getAmount()));
         }
 
+        return stringBuffer.toString();
     }
 
 

@@ -285,3 +285,139 @@
 1623461054288:obtain-money rsales 200
 1623461100756:stacktrace
 1623461213115:obtain-money rsales 200
+1623512435662:obtain-money gbmoura 100
+1623512509405:obtain-money rsales 10
+1623512521667:transfer-money gbmoura rsales 50
+1623516352692:obtain-money rsales 10
+1623519959475:stacktrace
+1623520066133:obtain-money rsales 10
+1623526109323:obtain-money gbmoura 100
+1623526130079:transfer-money gbmour rsales 10
+1623526139385:transfer-money gbmoura rsales 10
+1623526277931:obtain-money gbmoura 100
+1623528060991:current-amount gbmoura
+1623528173583:obtain-money gbmoura 100
+1623528176374:current-amount gbmoura
+1623528748735:obtain-money gbmoura 100
+1623528753171:current-amount gbmoura
+1623528767023:stacktrace
+1623528851641:ledger
+1623528992896:obtain-money gbmoura 100
+1623528997867:current-amount gbmoura
+1623529001701:ledger
+1623529006453:stacktrace
+1623529034692:client-ledger gbmoura
+1623529091151:obtain-money rsales
+1623529096810:obtain-money rsales 100
+1623529107648:transfer-money gbmoura rsales 10
+1623531518033:obtain-money rsales 100
+1623531535138:obtain-money gbmoura 100
+1623531537516:transfer-money gbmoura rsales 10
+1623531547143:current-amount gbmoura
+1623531554747:client-ledger gbmoura
+1623531562793:ledger
+1623531702101:obtain-money gbmoura 100
+1623537210802:obtain-money rsales 100
+1623537222468:transfer-money rsales gbmoura 50
+1623537453995:obtain-money rsales 100
+1623537460037:current-amount rsales
+1623537718591:obtain-money rsales 100
+1623537721861:ledger
+1623537728010:stacktrace
+1623537920696:ledger
+1623537929931:client-ledger rsales
+1623537941492:obtain-money rsales 100
+1623537943558:client-ledger rsales
+1623537954398:ledger
+1623538287933:stacktrace
+1623538432584:ledger
+1623538522209:obtain-money rsales 100
+1623538523943:ledger
+1623539431517:obtain-money rsales 100
+1623539434453:ledger
+1623539508958:current-amount rsales
+1623539650366:client-ledger rsales
+1623540027209:ledger
+1623540037647:client-ledger rsales
+1623540052158:obtain-money rsales 100
+1623540060096:client-ledger rsales
+1623540062947:ledger
+1623540189747:stacktrace
+1623540411732:ledger
+1623540417358:obtain-money rsales 100
+1623540419032:ledger
+1623540653039:client-ledger rsales
+1623540838710:current-amount rsales
+1623541091423:obtain-money rsales 100
+1623541095728:client-ledger rsales
+1623541326646:obtain-money rsales 100
+1623541331936:current-amount rsales
+1623541335069:ledger
+1623541343863:client-ledger rsales
+1623541441876:ledger
+1623541452417:obtain-money rsales 10
+1623541455547:client-ledger rsales
+1623541747660:obtain-money rsales 100
+1623541755276:current-amount rsales
+1623541777234:ledger
+1623541782509:client-ledger rsaleas
+1623541790123:client-ledger rsales
+1623541894560:obtain-money rsales 10
+1623541905294:client-ledger rsales
+1623542164604:obtain-money rsales 10
+1623542177129:client-ledger rsales
+1623542293479:obtain-money rsales 10
+1623543363725:ledger
+1623543402573:obtain-money rsales 10
+1623543411178:client-ledger rsales
+1623543525766:obtain-money rsales 10
+1623543528064:client-ledger rsales
+1623543621501:obtain-money rsales 10
+1623543623643:client-ledger rsales
+1623543758634:obtain-money gbmoura 10
+1623543771419:transfer-money gbmoura rsales 2
+1623543813298:obtain-money gbmoura 10
+1623543817130:obtain-money rsales 10
+1623543819318:transfer-money gbmoura rsales 2
+1623543822349:ledger
+1623544138665:obtain-money gbmoura 10
+1623544156722:obtain-money rsales 10
+1623544165532:transfer-money gbmoura rsales 2
+1623544172936:client-ledger rsales
+1623544301861:obtain-money gbmoura 10
+1623544306246:obtain-money rsales 10
+1623544309059:client-ledger rsales
+1623544554593:ledger
+1623544557993:obtain-money rsales 10
+1623544561454:client-ledger rsales
+1623544777207:current-amount rsales
+1623544870079:stacktrace
+1623545067940:client-ledger rsales
+1623545075262:obtain-money rsales 10
+1623545076813:client-ledger rsales
+1623545238473:obtain-money rsales 10
+1623545240338:client-ledger rsales
+1623545626638:obtain-money rsales 10
+1623545629599:client-ledger rsales
+1623546024969:obtain-money rsales 10
+1623546028987:client-ledger rsales
+1623546115665:obtain-money rsales 10
+1623546117874:client-ledger rsales
+1623547183370:obtain-money gbmoura 10
+1623547189487:obtain-money rsales 10
+1623547197006:transfer-money gbmoura rsales 5
+1623547203631:current-amount gbmoura
+1623547211012:current-amount rsales
+1623547216328:ledger
+1623547367681:obtain-money g 10
+1623548427674:ledger
+1623548845690:obtain-money g 10
+1623548847357:ledger
+1623548893138:client-ledger g
+1623548924814:obtain-money r 10
+1623548929596:transfer-money g r 5
+1623548931974:ledger
+1623548936430:client-ledger r
+1623548942389:client-ledger g
+1623548945219:current-amount g
+1623548950660:current-amount r

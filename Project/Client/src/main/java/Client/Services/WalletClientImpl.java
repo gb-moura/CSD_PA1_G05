@@ -1,6 +1,7 @@
 package Client.Services;
 
 import com.google.gson.Gson;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -26,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RestController
+@Service
 public class WalletClientImpl implements WalletClient {
 
 
@@ -73,7 +74,7 @@ public class WalletClientImpl implements WalletClient {
     @Override
     public ResponseEntity<String>  transferMoney(String fromUser, String toUser, Long amount) {
         Transaction transaction = new Transaction(fromUser, toUser, amount);
-        ResponseEntity<String> response = restTemplate.postForEntity(BASE +WALLET_CONTROLLER+ TRANSFER_MONEY, transaction, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity( BASE +WALLET_CONTROLLER+ TRANSFER_MONEY, transaction, String.class);
         return response;
     }
 
@@ -84,19 +85,36 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public ResponseEntity<String> ledgerOfGlobalTransfers() {
+    public List<Transaction> ledgerOfGlobalTransfers() throws ServerAnswerException {
         return getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER);
     }
 
     @Override
-    public ResponseEntity<String> LedgerOfClientTransfers(String userId) {
-        ResponseEntity<String> response = getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER + "/" + userId);
-        return response;
+    public List<Transaction> LedgerOfClientTransfers(String userId) throws ServerAnswerException {
+       // System.out.println("client ledger: " + BASE +WALLET_CONTROLLER+ GET_LEDGER + "/" + userId);
+        return  getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER + "/" + userId);
     }
 
-    private ResponseEntity<String> getLedgerFromPath(String path) {
+    private List<Transaction> getLedgerFromPath(String path) throws ServerAnswerException {
+      /*  System.out.println(path);
+        Transaction[] transactions = null;
         ResponseEntity<String> response = restTemplate.getForEntity(path, String.class);
-        return response;
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            System.out.println("ERRO CODE      "+response.getStatusCode());
+            JSONObject obj = new JSONObject(response.getBody());
+            String message = (String) obj.get("message");
+            throw new ServerAnswerException(message);
+        }else {
+            transactions =new Gson().fromJson(response.getBody(), Transaction[].class);
+
+        }
+
+        return Arrays.asList(transactions);*/
+
+        ResponseEntity<String> response = restTemplate.getForEntity(path, String.class);
+        Transaction[] transactions = new HandleServerAnswer<Transaction[]>().
+                processServerAnswer(response, Transaction[].class);
+        return Arrays.asList(transactions);
     }
 
 
