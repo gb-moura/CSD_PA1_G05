@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import Server.Util.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @PropertySource("classpath:application.properties")
 @RestController("ImpWalletReplicator")
 @RequestMapping(value = WalletController.BASE_URL)
@@ -27,7 +31,10 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
     @Autowired
     WalletController walletController;
 
-
+    @Override
+    public void createGenesisBlock(){
+    clientAsyncReplicator.invokeOrderedReplication(null);
+    }
     @Override
     public SystemReply createClient(String id) {
         logger.info("Proxy received request createMoney");
@@ -70,5 +77,20 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
         logger.info("Proxy received request ledgerOfClientTransfers " + userId);
         return clientAsyncReplicator.invokeUnorderedReplication(userId,Path.GET_CLIENT_LEDGER);
 
+    }
+
+    @Override
+    public SystemReply obtainLastMinedBlock() {
+        return clientAsyncReplicator.invokeUnorderedReplication(Path.OBTAIN_LAST_MINED_BLOCK);
+    }
+
+    @Override
+    public SystemReply pickNotMineratedTransactions(String id) {
+        return clientAsyncReplicator.invokeUnorderedReplication(id,Path.PICK_NOT_MIN_TRANS);
+    }
+
+    @Override
+    public SystemReply sendMinedBlock(Map.Entry<String,Block> entry) {
+        return clientAsyncReplicator.invokeOrderedReplication(entry,Path.MINE_BLOCK);
     }
 }

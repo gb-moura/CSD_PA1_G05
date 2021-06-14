@@ -1,5 +1,6 @@
 package Server.Controller;
 
+import Server.Util.Block;
 import Server.Util.SystemReply;
 import Server.Util.Transaction;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -21,6 +23,10 @@ public interface AsyncWalletController {
     String GET_LEDGER = "/ledger";
     String GET_CLIENT_LEDGER = "/ledger/{id}";
     String INIT = "/createClient";
+    String OBTAIN_LAST_MINED_BLOCK="/obtainlastminedblock";
+    String PICK_NOT_MIN_TRANS = "/picknotminedtransactions/{id}";
+    String MINE_BLOCK ="/mineblock";
+
 
 
     @PostMapping(
@@ -28,6 +34,8 @@ public interface AsyncWalletController {
 
             produces = APPLICATION_JSON_VALUE)
     SystemReply createClient(@RequestBody String id);
+
+    void createGenesisBlock();
 
 
     @PostMapping(
@@ -59,5 +67,21 @@ public interface AsyncWalletController {
             value =  GET_CLIENT_LEDGER,
             produces = APPLICATION_JSON_VALUE)
     SystemReply ledgerOfClientTransfers(@PathVariable("id") String id);
+
+    @GetMapping(
+            value =  OBTAIN_LAST_MINED_BLOCK,
+            produces = APPLICATION_JSON_VALUE)
+    SystemReply obtainLastMinedBlock();
+
+    @GetMapping(
+            value =  PICK_NOT_MIN_TRANS,
+            produces = APPLICATION_JSON_VALUE)
+    SystemReply pickNotMineratedTransactions(@PathVariable("id") String id);
+
+    @PostMapping(
+            value = MINE_BLOCK,
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    SystemReply sendMinedBlock(@RequestBody Map.Entry<String,Block> entry);
 
 }

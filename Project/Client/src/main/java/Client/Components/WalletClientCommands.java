@@ -1,5 +1,8 @@
 package Client.Components;
 
+import Client.Util.Block;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
@@ -11,6 +14,7 @@ import Client.Services.WalletClient;
 import Client.Exceptions.ServerAnswerException;
 
 import java.util.List;
+import java.util.Map;
 
 @NONAUTO
 @ShellComponent
@@ -92,6 +96,60 @@ public class WalletClientCommands {
         } catch (ServerAnswerException e) {
             return e.getMessage();
         }
+    }
+
+    @ShellMethod("Obtains the last mined block")
+    public String getLastMinedBlock(){
+        try{
+            return getBlockInformation(client.obtainLastMinedBlock());
+        }catch (ServerAnswerException e) {
+            return e.getMessage();
+        }
+    }
+
+    @ShellMethod("Gets a Block with the transactions not mined")
+    public String pickNotMinedTransactions(){
+        try{
+            return getBlockInformation(client.pickNotMinedTransactions(token));
+        }catch (ServerAnswerException | ParseException | JsonProcessingException e) {
+            return e.getMessage();
+        }
+    }
+    @ShellMethod("Mines the block received by pickNotMinedTransaction")
+    public String mineBlock(){
+        try{
+            client.mineBlock();
+            return "Block mined successfully";
+        }catch (ServerAnswerException e) {
+            return e.getMessage();
+        }
+    }
+
+    @ShellMethod("Sends the mined block")
+    public String sendMineBlock(){
+        try{
+           boolean answer = client.sendMinedBlock();
+           if(answer){
+                return "Block successfully added to blockchain";
+           }
+            return "Block was not added to the blockchain!";
+        }catch (ServerAnswerException e) {
+            return e.getMessage();
+        }
+    }
+
+
+
+
+
+
+
+    private String getBlockInformation(Block block){
+
+        if(block == null){
+            return "Client not authorized, please transfer money to FUND to execute operations with the blockchain";
+        }
+        return block.getHash()+"\n" + transformListOfTransactionInString(block.getData());
     }
 
 

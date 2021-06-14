@@ -1,4 +1,4 @@
-package Server.Util;
+package Client.Util;
 
 
 import com.google.gson.Gson;
@@ -28,11 +28,12 @@ public class Block implements Serializable {
     }
 
     public Block(List<Transaction> data, String previousHash){
-        this.hash = " ";
+        hash=" ";
         this.previousHash=previousHash;
-        //this.timestamp=timestamp;
         this.data =data;
         nonce=0;
+
+      //  this.timestamp=timestamp;
 
     }
 
@@ -68,7 +69,6 @@ public class Block implements Serializable {
 
 
 
-
     public String getHash() {
         return this.hash;
     }
@@ -77,10 +77,10 @@ public class Block implements Serializable {
         return this.previousHash;
     }
 
- //   public long getTimestamp(){return this.timestamp;}
-
-
+   // public long getTimestamp(){return this.timestamp;}
     public List<Transaction> getData() {
         return data;
     }
+
+
 }

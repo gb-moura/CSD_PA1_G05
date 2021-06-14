@@ -5,6 +5,7 @@ package Server.Controller;
 import Server.Exceptions.TheClientAlreadyExists;
 import Server.Exceptions.TransactionAmountNotValidException;
 import Server.Exceptions.UserDoesNotExistException;
+import Server.Repositories.BlockRepository;
 import Server.Repositories.UsersRepository;
 import Server.Repositories.WalletRepository;
 import Server.Util.Block;
@@ -16,9 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-
+import java.util.concurrent.TimeUnit;
 
 
 @Service("ImpWallet")
@@ -35,7 +36,13 @@ public class WalletControllerImpl implements WalletController {
     @Autowired
     private WalletRepository walletRep;
 
-    private Block lastBlockAdded;
+    @Autowired
+    private BlockRepository blockchain;
+
+    private Block lastMinedBlockAdded;
+
+    private List<Transaction> notMinedTransactions = new ArrayList<Transaction>();
+    private List<Block> queueToMine = new ArrayList<Block>();
 
     @Override
     public int createClient(String id){
@@ -50,6 +57,14 @@ public class WalletControllerImpl implements WalletController {
     }
 
     @Override
+    public void createGenesisBlock() {
+        List<Transaction> emptyList = new ArrayList<>();
+        Block b = new Block(emptyList," ");
+        blockchain.save(b);
+        lastMinedBlockAdded=b;
+    }
+
+    @Override
     public void obtainCoins(Transaction transaction) {
 
         if (transaction.getAmount() < 0 || transaction.getTo().equals(SYSTEM_RESERVED_USER)) {
@@ -58,12 +73,13 @@ public class WalletControllerImpl implements WalletController {
 
         transaction.setFrom(SYSTEM_RESERVED_USER);
         walletRep.save(transaction);
+        notMinedTransactions.add(transaction);
     }
 
 
 
     @Override
-    public void transferMoney(Transaction transaction) {
+    public void transferMoney(Transaction transaction)   {
 
        
         Long fromAmount = currentAmount(transaction.getFrom());
@@ -73,13 +89,14 @@ public class WalletControllerImpl implements WalletController {
         
         
         walletRep.save(transaction);
+        notMinedTransactions.add(transaction);
     }
 
 
     @Override
-    public Long currentAmount(String id) {
+    public Long currentAmount(String id)  {
+
         Long amount = 0L;
-        System.out.println("IDDDDDD " + id);
         List<Transaction> clientLedger = ledgerOfClientTransfers(id);
         for(Transaction t: clientLedger){
             if(t.getTo().equals(id)){
@@ -119,15 +136,56 @@ public class WalletControllerImpl implements WalletController {
     }
 
 
-
+    @Override
     public Block obtainLastMinedBlock(){
 
+        return lastMinedBlockAdded;
+    }
+    @Override
+    public Block pickNotMineratedTransactions(String id){
+
+
+        if(isAuthorized(id)){
+            return new Block(notMinedTransactions,lastMinedBlockAdded.getPreviousHash());
+        }
+
+
         return null;
     }
-    public Block pickNotMineratedTransactions(){
-        return null;
-    }
-    public void sendMinedBlock(Block block){
+
+    @Override
+    public boolean sendMinedBlock(Map.Entry<String,Block> entry) throws InterruptedException {
+        Block newestBlock = null;
+        long newestTimestamp = 0L;
+        int maxListSize=0;
+        Block block = entry.getValue();
+        if(isAuthorized(entry.getKey())){
+            if(block.getHash().startsWith("0")){
+                queueToMine.add(block);
+                TimeUnit.SECONDS.sleep(10);
+                if(queueToMine.size()==1){
+                    blockchain.save(block);
+                    lastMinedBlockAdded = block;
+                }else{
+                    for(Block b: queueToMine){
+                        if(maxListSize<b.getData().size()){
+                            maxListSize = b.getData().size();
+                            newestBlock=b;
+                        }
+                    }
+                    lastMinedBlockAdded=newestBlock;
+                    blockchain.save(newestBlock);
+
+                }
+                queueToMine.clear();
+                notMinedTransactions.clear();
+            }
+        }
+        if(block==lastMinedBlockAdded){
+            return true;
+        }else{
+            return  false;
+        }
 
     }
 
@@ -141,6 +199,18 @@ public class WalletControllerImpl implements WalletController {
         if(user.isEmpty())
             return null;
         return user.get() ;
+    }
+
+    private boolean isAuthorized(String id){
+        List<Transaction> clientLedger = ledgerOfClientTransfers( id);
+        boolean authorized = false;
+        for(Transaction t: clientLedger){
+            if(t.getTo().equals("FUND")){
+                authorized=true;
+                break;
+            }
+        }
+        return authorized;
     }
     
    

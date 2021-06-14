@@ -1,34 +1,33 @@
 package Client.Services;
 
+import Client.Exceptions.ServerAnswerException;
 import Client.Handlers.RestTemplateHeaderModifierInterceptor;
+import Client.Handlers.RestTemplateResponseErrorHandler;
+import Client.Util.Block;
+import Client.Util.Transaction;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import org.glassfish.jersey.internal.guava.Maps;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import Client.Handlers.RestTemplateResponseErrorHandler;
-import Client.Util.Transaction;
-import Client.Exceptions.ServerAnswerException;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 
 @Service
 public class WalletClientImpl implements WalletClient {
@@ -48,6 +47,11 @@ public class WalletClientImpl implements WalletClient {
     private static String GET_MONEY = "/current";
     private static String GET_LEDGER = "/ledger";
     private static String INIT = "/createClient";
+    String OBTAIN_LAST_MINED_BLOCK="/obtainlastminedblock";
+    String PICK_NOT_MIN_TRANS = "/picknotminedtransactions";
+    String MINE_BLOCK ="/mineblock";
+
+    private Block blockReceived;
 
 
     private RestTemplate restTemplate;
@@ -87,8 +91,8 @@ public class WalletClientImpl implements WalletClient {
 
     @Override
     public int createClient() throws ServerAnswerException {
-       String value =  new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER +INIT, token, restTemplate);
-        return Integer.valueOf(value);
+       Object value =  new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER +INIT, token, restTemplate);
+        return Integer.parseInt(value.toString());
     }
 
     @Override
@@ -105,8 +109,8 @@ public class WalletClientImpl implements WalletClient {
 
     @Override
     public Long currentAmount(String token) throws ServerAnswerException {
-        String longJson = new ExtractAnswer().extractAnswerGet(BASE +WALLET_CONTROLLER +  GET_MONEY + "/" + token, restTemplate);
-        return Long.valueOf(longJson);
+        Object longJson = new ExtractAnswer().extractAnswerGet(BASE +WALLET_CONTROLLER +  GET_MONEY + "/" + token, restTemplate);
+        return Long.valueOf(longJson.toString());
     }
 
     @Override
@@ -119,10 +123,52 @@ public class WalletClientImpl implements WalletClient {
         return  getLedgerFromPath(BASE +WALLET_CONTROLLER+ GET_LEDGER + "/" + token);
     }
 
+    @Override
+    public Block obtainLastMinedBlock() throws ServerAnswerException {
+        Object answer = new ExtractAnswer().extractAnswerGet(BASE+WALLET_CONTROLLER+OBTAIN_LAST_MINED_BLOCK,restTemplate);
+        return new Gson().fromJson(answer.toString(),Block.class);
+    }
+
+    @Override
+    public Block pickNotMinedTransactions(String token) throws ServerAnswerException, ParseException, JsonProcessingException {
+        System.out.println(BASE+WALLET_CONTROLLER+PICK_NOT_MIN_TRANS + "/" + token);
+        Object answer = new ExtractAnswer().extractAnswerGet(BASE+WALLET_CONTROLLER+PICK_NOT_MIN_TRANS + "/" + token,restTemplate);
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String jsonString =  new ObjectMapper().writeValueAsString(answer);
+
+        blockReceived = objectMapper.readValue(jsonString, Block.class);
+        return blockReceived;
+
+    }
+
+    @Override
+    public Block mineBlock() throws ServerAnswerException {
+        String hash = blockReceived.mineBlock(0);
+
+
+        return blockReceived;
+    }
+
+    @Override
+    public boolean sendMinedBlock() throws ServerAnswerException {
+        Map.Entry<String,Block> blockEntry = Maps.immutableEntry(token,blockReceived);
+
+        Object answer = new ExtractAnswer().extractAnswerPost(BASE+WALLET_CONTROLLER+MINE_BLOCK, blockEntry,restTemplate);
+        return Boolean.parseBoolean(answer.toString());
+    }
+
+
     private List<Transaction> getLedgerFromPath(String path) throws ServerAnswerException {
 
-        String transactionsJson = new ExtractAnswer().extractAnswerGet(path, restTemplate);
-        return Arrays.asList(new Gson().fromJson(transactionsJson, Transaction[].class));
+        Object transactionsJson = new ExtractAnswer().extractAnswerGet(path, restTemplate);
+        System.out.println(transactionsJson);
+        List<Transaction> t =  Arrays.asList(new Gson().fromJson(transactionsJson.toString(), Transaction[].class));
+        System.out.println("TYTTTTTT " + t);
+        return t;
     }
 
 

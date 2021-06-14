@@ -1,5 +1,6 @@
 package Server.Replication;
 
+import Server.Repositories.BlockRepository;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
@@ -23,6 +24,7 @@ import Server.Util.*;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 @PropertySource("classpath:application.properties")
 @Component
@@ -43,11 +45,15 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 	@Autowired
 	MongoTemplate mongoTemplate;
 
+
+
 	@PostConstruct
 	public void init(){
 		mongoTemplate.getDb().drop();
 		new ServiceReplica(ID, this, this);
 		this.keyLoader = new RSAKeyLoader(ID, DEFAULT_KEY_CONFIG);
+		walletController.createClient("FUND");
+		walletController.createGenesisBlock();
 	}
 
 	@Override
@@ -72,7 +78,6 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 			 ObjectInput objIn = new ObjectInputStream(byteIn);
 			 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			 ObjectOutput objOut = new ObjectOutputStream(byteOut);) {
-
 			Path path = (Path)objIn.readObject();
 			logger.info(String.format("Searching for %s to invoke.", path));
 			switch(path){
@@ -88,34 +93,46 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 					objOut.writeObject(new VoidObject());
 					counter++;
 					return new Gson().toJson("").getBytes();
-
 				case TRANSFER_MONEY:
 					walletController.transferMoney((Transaction)objIn.readObject());
 					logger.info("Successfully completed transferMoney");
 					objOut.writeObject(new VoidObject());
 					counter++;
 					return new Gson().toJson("").getBytes();
-
-
 				case GET_MONEY:
 					String result = String.valueOf(walletController.currentAmount((String)objIn.readObject()));
 					objOut.writeObject(result);
 					logger.info("Successfully completed currentAmount");
 					return new Gson().toJson(result).getBytes();
-
 				case GET_LEDGER:
 					List<Transaction> res = walletController.ledgerOfGlobalTransactions();
-
 					objOut.writeObject( res);
 					logger.info("Successfully completed ledgerOfClientTransfers");
 					return new Gson().toJson(res).getBytes();
-
 				case GET_CLIENT_LEDGER:
 					List<Transaction> res1 = walletController.ledgerOfClientTransfers((String)objIn.readObject());
 					objOut.writeObject(res1);
 					logger.info("Successfully completed ledgerOfClientTransfers");
 					return new Gson().toJson(res1).getBytes();
-
+				case OBTAIN_LAST_MINED_BLOCK:
+					Block b = walletController.obtainLastMinedBlock();
+					objOut.writeObject(b);
+					logger.info("Successfully completed obtainLastMinedBlock");
+					return new Gson().toJson(b).getBytes();
+				case PICK_NOT_MIN_TRANS:
+					Block pick = walletController.pickNotMineratedTransactions((String)objIn.readObject());
+					System.out.println("BLOCO PICKED     " + pick);
+					objOut.writeObject(pick);
+					logger.info("Successfully completed pickNotMineratedTransactions");
+					Gson g = new Gson();
+					String x = g.toJson(pick);
+					System.out.println("GSON              "+x);
+					return x.getBytes();
+				case MINE_BLOCK:
+					boolean mined = walletController.sendMinedBlock((Map.Entry<String, Block>) objIn.readObject());
+					objOut.writeObject(mined);
+					logger.info("Successfully completed mineBlock");
+					return new Gson().toJson(mined).getBytes();
 				default:
 					logger.error("Not implemented");
 					break;
@@ -123,7 +140,6 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 
 			objOut.flush();
 			byteOut.flush();
-
 			return byteOut.toByteArray();
 		} catch (Exception e){
 			e.printStackTrace();

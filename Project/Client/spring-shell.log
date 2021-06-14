@@ -525,3 +525,152 @@
 1623625178128:client-ledger
 1623625212990:ledger
 1623627497208:create-client
+1623688361328:obtain-money 10
+1623688367387:obtain-money 10
+1623688379415:current-amount
+1623688379680:current-amount
+1623688400133:transfer-money gbmoura 1
+1623688411812:current-amount
+1623688618703:obtain-money 10
+1623688625454:obtain-money 10
+1623688629680:transfer-money gbmoura 1
+1623688652372:current-amount
+1623688832640:obtain-money 10
+1623688837921:obtain-money 10
+1623688841152:current-amount
+1623688868139:current-amount
+1623688946078:obtain-money 10
+1623688950106:obtain-money 10
+1623688951542:current-amount
+1623688954267:current-amount
+1623688986741:transfer-money gbmoura 1
+1623689001161:current-amount
+1623693836147:obtain-money 10
+1623693874438:transfer-money gbmoura 1
+1623693893839:pick-not-mined-transactions
+1623693931301:stacktrace
+1623694204044:obtain-money 10
+1623694216395:pick-not-mined-transactions
+1623694262232:obtain-money 10
+1623694264901:pick-not-mined-transactions
+1623694386495:obtain-money 10
+1623694387970:pick-not-mined-transactions
+1623694497557:obtain-money 10
+1623694500689:pick-not-mined-transactions
+1623694558996:obtain-money 10
+1623694561310:pick-not-mined-transactions
+1623694633813:obtain-money 10
+1623694636199:pick-not-mined-transactions
+1623694817888:obtain-money 10
+1623694819962:pick-not-mined-transactions
+1623694971190:obtain-money 10
+1623694979570:pick-not-mined-transactions
+1623695038962:obtain-money 10
+1623695046666:pick-not-mined-transactions
+1623695251322:obtain-money 10
+1623695254174:pick-not-mined-transactions
+1623695307076:transfer-money FUND 1
+1623695312141:pick-not-mined-transactions
+1623695611387:obtain-money 10
+1623695622219:transfer-money FUND 1
+1623695631095:help
+1623695636126:pick-not-mined-transactions
+1623695859660:obtain-money 10
+1623695871180:pick-not-mined-transactions
+1623695884198:transfer-money FUND 1
+1623695887393:pick-not-mined-transactions
+1623696069043:obtain-money 10
+1623696075355:transfer-money FUND 1
+1623696079356:pick-not-mined-transactions
+1623696103430:mine-block
+1623696239997:obtain-money 20
+1623696242949:transfer-money FUND 1
+1623696246272:pick-not-mined-transactions
+1623696781540:obtain-money 20
+1623696784457:transfer-money FUND 1
+1623696786950:pick-not-mined-transactions
+1623696902070:obtain-money 20
+1623696904186:transfer-money FUND 1
+1623696908690:pick-not-mined-transactions
+1623697030456:obtain-money 10
+1623697037659:transfer-money FUND 1
+1623697043390:pick-not-mined-transactions
+1623697145825:obtain-money 10
+1623697147837:transfer-money FUND 1
+1623697150380:pick-not-mined-transactions
+1623697534919:obtain-money 20
+1623697538654:transfer-money FUND 1
+1623697541870:pick-not-mined-transactions
+1623697626835:obtain-money 20
+1623697628835:transfer-money FUND 1
+1623697630715:pick-not-mined-transactions
+1623697637330:stacktrace
+1623697751800:obtain-money 20
+1623697754715:transfer-money FUND 1
+1623697757662:pick-not-mined-transactions
+1623697985868:obtain-money 20
+1623697987739:transfer-money FUND 1
+1623697990174:pick-not-mined-transactions
+1623698340434:obtain-money 20
+1623698343116:transfer-money FUND 1
+1623698345152:pick-not-mined-transactions
+1623698545183:obtain-money 20
+1623698547010:transfer-money FUND 1
+1623698564110:pick-not-mined-transactions
+1623698658935:ledger
+1623698720749:obtain-money 20
+1623698723638:transfer-money FUND 1
+1623698725917:ledger
+1623698801915:obtain-money 20
+1623698804041:transfer-money FUND 1
+1623698806249:ledger
+1623699303551:obtain-money 20
+1623699305574:transfer-money FUND 1
+1623699311162:pick-not-mined-transactions
+1623699386047:obtain-money 20
+1623699387606:transfer-money FUND 1
+1623699389167:pick-not-mined-transactions
+1623699419945:obtain-money 20
+1623699422351:transfer-money FUND 1
+1623699425143:pick-not-mined-transactions
+1623700256523:obtain-money 20
+1623700258598:transfer-money FUND 1
+1623700262120:pick-not-mined-transactions
+1623700320036:obtain-money 20
+1623700321817:transfer-money FUND 1
+1623700542647:obtain-money 20
+1623700545109:transfer-money FUND 1
+1623700551029:pick-not-mined-transactions
+1623700628582:stacktrace
+1623700683801:ledger
+1623713432671:obtain-money 10
+1623713436189:transfer-money FUND 1
+1623713439135:pick-not-mined-transactions
+1623713486342:obtain-money 10
+1623713488011:transfer-money FUND 1
+1623713489530:pick-not-mined-transactions
+1623713595382:obtain-money 10
+1623713597559:transfer-money FUND 1
+1623713599406:pick-not-mined-transactions
+1623713784107:obtain-money 10
+1623713785980:transfer-money FUND 1
+1623713787612:pick-not-mined-transactions
+1623713955115:obtain-money 10
+1623713957041:transfer-money FUND 1
+1623713959183:pick-not-mined-transactions
+1623714019181:obtain-money 10
+1623714022235:transfer-money FUND 1
+1623714023823:pick-not-mined-transactions
+1623714129029:obtain-money 10
+1623714135270:transfer-money FUND 1
+1623714138098:pick-not-mined-transactions
+1623714144877:stacktrace
+1623714256743:obtain-money 10
+1623714259155:transfer-money FUND 1
+1623714262968:pick-not-mined-transactions
+1623714308553:obtain-money 10
+1623714311041:transfer-money FUND 1
+1623714312934:pick-not-mined-transactions
+1623714497097:obtain-money 10
+1623714501503:transfer-money FUND 1
+1623714503655:pick-not-mined-transactions

@@ -9,13 +9,13 @@ import org.springframework.web.client.RestTemplate;
 
 public class ExtractAnswer {
 
-    public String extractAnswerGet (String url, RestTemplate restTemplate) throws ServerAnswerException {
+    public Object extractAnswerGet (String url, RestTemplate restTemplate) throws ServerAnswerException {
         ResponseEntity<SystemReply> response =
                 restTemplate.getForEntity(url, SystemReply.class);
         return extractFromResponse(response);
     }
 
-    public <V> String extractAnswerPost (String url, V objPost,RestTemplate restTemplate) throws ServerAnswerException {
+    public <V> Object extractAnswerPost (String url, V objPost,RestTemplate restTemplate) throws ServerAnswerException {
         ResponseEntity<SystemReply> response =
                 restTemplate.postForEntity(url, objPost, SystemReply.class);
         return extractFromResponse(response);
@@ -23,21 +23,23 @@ public class ExtractAnswer {
 
 
 
-    private String extractFromResponse (ResponseEntity<SystemReply> response) throws ServerAnswerException {
+    private Object extractFromResponse (ResponseEntity<SystemReply> response) throws ServerAnswerException {
         SystemReply systemReply = response.getBody();
         assert systemReply != null;
         try {
             if (!SignatureVerifier.isValidReply(systemReply))
                 throw new NoMajorityAnswerException();
-            return convertMostFrequentAnswer(systemReply.getReply()).toString();
+            return convertMostFrequentAnswer(systemReply.getReply());
         } catch (Exception e) {
             throw new ServerAnswerException(e.getMessage());
         }
     }
 
     private Object convertMostFrequentAnswer(byte[] answer) {
-
-        return new Gson().fromJson(new String(answer), Object.class);
+       // System.out.println("ON CONVERT    " + answer);
+        Object teste =  new Gson().fromJson(new String(answer), Object.class);
+       // System.out.println("CHEGUEI AQUI " + teste);
+        return teste;
     }
 
 
