@@ -1,10 +1,7 @@
 package Client.Components;
 
-import Client.Util.UserAccount;
-import com.google.gson.Gson;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -19,47 +16,59 @@ import java.util.List;
 @ShellComponent
 public class WalletClientCommands {
 
+    @Value("${token}")
+    private String token;
 
 
     private WalletClient client;
 
     @Autowired
-    public WalletClientCommands(WalletClient client) {
+    public WalletClientCommands(WalletClient client)  {
         this.client = client;
+
     }
 
     @ShellMethod("Create money to a specified user")
-    public String obtainMoney(  String toUser,  Long amount) {
+    public String obtainMoney( Long amount)  {
+    try{
+        client.obtainCoins(amount);
+        return  "Money added successfully";
+    }catch(ServerAnswerException e){
+        return e.getMessage();
+    }
 
-        ResponseEntity<String> response = client.obtainCoins(toUser,amount);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            return  "Something went wrong with the error: " + response.getStatusCode();
-        }
-        return "Money added to "+ toUser + " successfully" ;
+
     }
 
     @ShellMethod("Transfer money from a provided user to other provided user")
-    public String transferMoney(@ShellOption() String fromUser, @ShellOption() String toUser, @ShellOption() Long amount)
+    public String transferMoney( @ShellOption() String toUser, @ShellOption() Long amount)
     {
+        try{
+            client.transferMoney(toUser,amount);
+            return "Money was transferred to " + toUser+".\n" +  "Amount: " + amount ;
 
-        ResponseEntity<String> response = client.transferMoney(fromUser, toUser, amount);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            return  "Something went wrong with the error: " + response.getStatusCode();
+        }catch(ServerAnswerException e){
+            return e.getMessage();
         }
-
-        return "Money was transferred to " + toUser+".\n" + "Money was transferred from " + fromUser +".\n" + "Amount: " + amount ;
 
     }
 
 
     @ShellMethod("See the provided user money")
-    public void currentAmount(String id) {
-        ResponseEntity<String> response = client.currentAmount(id);
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("Something went wrong");
-            }else {
-            System.out.println("The amount of the user " + id +" is: " +  new Gson().fromJson(response.getBody(),Long.class));
+    public String currentAmount() {
+        try{
+            System.out.println("IDDDD " + token);
+            Long response = client.currentAmount(token);
+            if(response==0L){
+                return "The user does not exists";
+            }else{
+                return "You have: " + response ;
+            }
+
+        }catch(ServerAnswerException e){
+            return e.getMessage();
         }
+
     }
 
 
@@ -76,10 +85,10 @@ public class WalletClientCommands {
 
 
     @ShellMethod("See the provided user money")
-    public String clientLedger(@ShellOption() String id) {
+    public String clientLedger() {
         try {
             return transformListOfTransactionInString(
-                    client.LedgerOfClientTransfers(id));
+                    client.LedgerOfClientTransfers());
         } catch (ServerAnswerException e) {
             return e.getMessage();
         }

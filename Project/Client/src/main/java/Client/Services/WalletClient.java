@@ -8,13 +8,15 @@ import java.util.List;
 
 public interface WalletClient {
 
-    ResponseEntity<String>  obtainCoins(String toUser, Long amount);
+    int createClient() throws ServerAnswerException;
 
-    ResponseEntity<String>  transferMoney(String fromUser, String toUser, Long amount);
+    void  obtainCoins( Long amount) throws ServerAnswerException;
 
-    ResponseEntity<String> currentAmount(String userID) ;
+    void  transferMoney( String toUser, Long amount) throws ServerAnswerException;
+
+    Long currentAmount(String token) throws ServerAnswerException;
 
    List<Transaction>  ledgerOfGlobalTransfers() throws ServerAnswerException;
 
-    List<Transaction>  LedgerOfClientTransfers(String userId) throws ServerAnswerException;
+    List<Transaction>  LedgerOfClientTransfers() throws ServerAnswerException;
 }

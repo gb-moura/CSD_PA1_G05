@@ -458,3 +458,70 @@
 1623598770445:ledger
 1623598781110:client-ledger g
 1623598793468:client-ledger r
+1623609198195:obtain-money g 10
+1623609228776:ledger
+1623609291000:obtain-money g 10
+1623609634084:obtain-money r 10
+1623609638820:transfer-money g r 2
+1623609642832:current-amount g
+1623609828366:obtain-money g 10
+1623609847193:obtain-money f 10
+1623609851223:current-amount f
+1623609988291:obtain-money g 10
+1623609992286:current-amount g
+1623610235503:obtain-money g 10
+1623610245209:obtain-money r 10
+1623610250571:current-amount r
+1623610592447:obtain-money d 10
+1623610599067:current-amount d
+1623610906761:obtain-money d 10
+1623610915746:current-amount d
+1623611139549:obtain-money d 10
+1623611154868:current-amount d
+1623611279696:obtain-money gbmoura 10
+1623611290036:current-amount gbmoura
+1623611503304:obtain-money rsales 10
+1623611532703:current-amount gbmoura
+1623611837517:obtain-money rsales 10
+1623611958697:current-amount rsales
+1623611973873:obtain-money gbmoura 10
+1623611982874:transfer-money gbmoura rsales 1
+1623611987766:current-amount gbmoura
+1623611992458:current-amount f
+1623612197350:current-amount g
+1623612447722:obtain-money g 10
+1623612453291:current-amount g
+1623612467796:current-amount f
+1623612561279:obtain-money g 10
+1623612564139:current-amount g
+1623612566768:current-amount f
+1623613322349:ledger
+1623615893780:obtain-money g 10
+1623615900012:current-amount g
+1623615904478:ledger
+1623616141570:obtain-money g 10
+1623616151744:current-amount g
+1623616157808:obtain-money r 10
+1623616163162:transfer-money g r 10
+1623616166594:current-amount r
+1623616168964:ledger
+1623616173354:client-ledger r
+1623624151242:obtain-money 10
+1623624203362:obtain-money 10
+1623624233319:transfer-money rsales 5
+1623624250410:current-amount
+1623624465602:transfer-money rsales 5
+1623624543551:obtain-money 10
+1623624551702:transfer-money rsales 5
+1623624556878:current-amount
+1623624782938:current-amount
+1623625047745:obtain-money 10
+1623625051390:current-amount
+1623625058655:obtain-money 10
+1623625066148:transfer-money rsales 5
+1623625078334:transfer-money gbmoura 5
+1623625082055:current-amount
+1623625085794:current-amount
+1623625178128:client-ledger
+1623625212990:ledger
+1623627497208:create-client

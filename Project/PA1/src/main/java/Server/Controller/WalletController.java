@@ -22,6 +22,14 @@ WalletController {
     String GET_MONEY = "/current/{id}";
     String GET_LEDGER = "/ledger";
     String GET_CLIENT_LEDGER = "/ledger/{id}";
+    String INIT = "/createClient";
+
+
+    @PostMapping(
+            value = INIT,
+            consumes = APPLICATION_JSON_VALUE)
+    int createClient(@RequestBody String id);
+
 
     @PostMapping(
             value = OBTAIN_COINS,

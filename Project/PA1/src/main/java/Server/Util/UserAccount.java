@@ -1,27 +1,27 @@
 package Server.Util;
 
-// import javax.persistence.*;
+
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 
-//@Entity
-//@Table
+
 public class UserAccount implements Serializable {
 
-   @Id
+
     private String id;
 
-    // @Column(name = "money", nullable = false)
-    private Long money;
+
+
 
     public UserAccount(){
 
     }
 
-    public UserAccount(String id, Long money){
+    public UserAccount(String id){
         this.id = id;
-        this.money = money;
+
+
     }
 
     public String getId() {
@@ -32,15 +32,7 @@ public class UserAccount implements Serializable {
         this.id = id;
     }
 
-    public Long getMoney() {
-        return money;
-    }
 
-    public void setMoney(Long money) {
-        this.money = money;
-    }
 
-    public void addMoney(Long money){
-        this.money += money;
-    }
+
 }

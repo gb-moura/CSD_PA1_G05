@@ -2,10 +2,12 @@
 package Server.Controller;
 
 
+import Server.Exceptions.TheClientAlreadyExists;
 import Server.Exceptions.TransactionAmountNotValidException;
 import Server.Exceptions.UserDoesNotExistException;
 import Server.Repositories.UsersRepository;
 import Server.Repositories.WalletRepository;
+import Server.Util.Block;
 import Server.Util.Transaction;
 import Server.Util.UserAccount;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.Optional;
 
 
 
-//@RestController()
+
 @Service("ImpWallet")
 public class WalletControllerImpl implements WalletController {
 
@@ -33,7 +35,19 @@ public class WalletControllerImpl implements WalletController {
     @Autowired
     private WalletRepository walletRep;
 
+    private Block lastBlockAdded;
 
+    @Override
+    public int createClient(String id){
+        UserAccount user = getUser(id);
+        if(user != null ){
+        return 0;
+        }
+        UserAccount u = new UserAccount(id);
+        userRep.save(u);
+        return 1;
+
+    }
 
     @Override
     public void obtainCoins(Transaction transaction) {
@@ -41,61 +55,48 @@ public class WalletControllerImpl implements WalletController {
         if (transaction.getAmount() < 0 || transaction.getTo().equals(SYSTEM_RESERVED_USER)) {
             throw new TransactionAmountNotValidException();
         }
-        UserAccount user = getOrCreateUser(transaction.getTo());
-        user.addMoney(transaction.getAmount());
-        userRep.save(user);
+
         transaction.setFrom(SYSTEM_RESERVED_USER);
         walletRep.save(transaction);
     }
 
-    private UserAccount getOrCreateUser (String userId) {
-        try {
 
-            Optional<UserAccount> user = userRep.findById(userId);
-            return user.orElseThrow(()->new UserDoesNotExistException(userId));
-        } catch (UserDoesNotExistException e) {
-            return new UserAccount(userId, 0L);
-        }
-    }
 
     @Override
     public void transferMoney(Transaction transaction) {
 
-        if (!(transaction.getAmount() != null && transaction.getAmount() > 0))
+       
+        Long fromAmount = currentAmount(transaction.getFrom());
+        if(fromAmount<transaction.getAmount() || transaction.getAmount() < 0)
             throw new TransactionAmountNotValidException();
-
-        UserAccount accountTo = getUser(transaction.getTo());
-        UserAccount accountFrom = getUser(transaction.getFrom());
-     //we only can transfer money to existing accounts
-        if(accountTo == null){
-            throw new UserDoesNotExistException(transaction.getTo());
-        }
-        if(accountFrom == null){
-            throw new UserDoesNotExistException(transaction.getFrom());
-        }
-
-        accountTo.addMoney(transaction.getAmount());
-        accountFrom.addMoney(transaction.getAmount()*-1);
-        userRep.save(accountTo);
-        userRep.save(accountFrom);
+        
+        
+        
         walletRep.save(transaction);
     }
 
 
     @Override
     public Long currentAmount(String id) {
-        System.out.println("user " + id );
-        UserAccount account = getUser(id);
-        if(account == null){
-            throw new UserDoesNotExistException("User does not exists " + id);
+        Long amount = 0L;
+        System.out.println("IDDDDDD " + id);
+        List<Transaction> clientLedger = ledgerOfClientTransfers(id);
+        for(Transaction t: clientLedger){
+            if(t.getTo().equals(id)){
+                amount+=t.getAmount();
+            }else if(t.getFrom().equals(id)){
+                amount-=t.getAmount();
+            }
         }
-        return account.getMoney();
+        
+        return amount;
 
     }
 
 
     @Override
     public List<Transaction> ledgerOfGlobalTransactions() {
+
         return walletRep.findAll();
 
     }
@@ -119,12 +120,29 @@ public class WalletControllerImpl implements WalletController {
 
 
 
+    public Block obtainLastMinedBlock(){
+
+        return null;
+    }
+    public Block pickNotMineratedTransactions(){
+        return null;
+    }
+    public void sendMinedBlock(Block block){
+
+    }
+
+
+
 
     /**********************************************************/
 
     private UserAccount getUser(String userId){
         Optional<UserAccount> user = userRep.findById(userId);
-        return user.orElseThrow(()-> new UserDoesNotExistException(userId)) ;
+        if(user.isEmpty())
+            return null;
+        return user.get() ;
     }
+    
+   
 
 }
