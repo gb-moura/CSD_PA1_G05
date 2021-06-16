@@ -1,6 +1,8 @@
 package Client.Util;
 
-public class Transaction {
+import java.io.Serializable;
+
+public class Transaction implements Serializable {
 
     public Transaction(){
 

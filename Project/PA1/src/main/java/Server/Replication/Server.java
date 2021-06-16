@@ -23,6 +23,7 @@ import Server.Util.*;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 
@@ -78,7 +79,10 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 			 ObjectInput objIn = new ObjectInputStream(byteIn);
 			 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			 ObjectOutput objOut = new ObjectOutputStream(byteOut);) {
-			Path path = (Path)objIn.readObject();
+			//PublicKey key = new RSAKeyLoader().
+			//	loadPublicKey();
+			//verificar se a assinatura e do cliente correto caso afirmativo prossegue para a execucao do metodo caso negativo responde deu merda
+			 Path path = (Path)objIn.readObject();
 			logger.info(String.format("Searching for %s to invoke.", path));
 			switch(path){
 				case INIT:

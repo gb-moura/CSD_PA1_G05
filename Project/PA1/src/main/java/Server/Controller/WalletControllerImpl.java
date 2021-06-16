@@ -50,6 +50,7 @@ public class WalletControllerImpl implements WalletController {
         if(user != null ){
         return 0;
         }
+
         UserAccount u = new UserAccount(id);
         userRep.save(u);
         return 1;
