@@ -116,6 +116,7 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 					return new Gson().toJson(res1).getBytes();
 				case OBTAIN_LAST_MINED_BLOCK:
 					Block b = walletController.obtainLastMinedBlock();
+					System.out.println("BLOCK B: " + b);
 					objOut.writeObject(b);
 					logger.info("Successfully completed obtainLastMinedBlock");
 					return new Gson().toJson(b).getBytes();

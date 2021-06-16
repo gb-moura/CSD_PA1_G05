@@ -102,7 +102,7 @@ public class WalletClientCommands {
     public String getLastMinedBlock(){
         try{
             return getBlockInformation(client.obtainLastMinedBlock());
-        }catch (ServerAnswerException e) {
+        }catch (ServerAnswerException | JsonProcessingException e) {
             return e.getMessage();
         }
     }
@@ -129,6 +129,7 @@ public class WalletClientCommands {
     public String sendMineBlock(){
         try{
            boolean answer = client.sendMinedBlock();
+            System.out.println("ANSWER   " + answer);
            if(answer){
                 return "Block successfully added to blockchain";
            }

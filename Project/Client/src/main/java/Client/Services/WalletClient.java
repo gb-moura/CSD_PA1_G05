@@ -24,7 +24,7 @@ public interface WalletClient {
 
     List<Transaction>  LedgerOfClientTransfers() throws ServerAnswerException;
 
-    Block obtainLastMinedBlock() throws ServerAnswerException;
+    Block obtainLastMinedBlock() throws ServerAnswerException, JsonProcessingException;
 
     Block pickNotMinedTransactions(String token) throws ServerAnswerException, ParseException, JsonProcessingException;
 

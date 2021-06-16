@@ -159,7 +159,9 @@ public class WalletControllerImpl implements WalletController {
         long newestTimestamp = 0L;
         int maxListSize=0;
         Block block = entry.getValue();
+        System.out.println(block);
         if(isAuthorized(entry.getKey())){
+            System.out.println("TENHO PERMI para entrar");
             if(block.getHash().startsWith("0")){
                 queueToMine.add(block);
                 TimeUnit.SECONDS.sleep(10);

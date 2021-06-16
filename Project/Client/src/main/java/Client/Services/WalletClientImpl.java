@@ -124,9 +124,13 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public Block obtainLastMinedBlock() throws ServerAnswerException {
+    public Block obtainLastMinedBlock() throws ServerAnswerException, JsonProcessingException {
         Object answer = new ExtractAnswer().extractAnswerGet(BASE+WALLET_CONTROLLER+OBTAIN_LAST_MINED_BLOCK,restTemplate);
-        return new Gson().fromJson(answer.toString(),Block.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String jsonString =  new ObjectMapper().writeValueAsString(answer);
+        return new Gson().fromJson(jsonString,Block.class);
     }
 
     @Override
@@ -147,9 +151,9 @@ public class WalletClientImpl implements WalletClient {
 
     @Override
     public Block mineBlock() throws ServerAnswerException {
-        String hash = blockReceived.mineBlock(0);
-
-
+        String hash = blockReceived.mineBlock(1);
+        blockReceived.setHash(hash);
+        System.out.println(hash);
         return blockReceived;
     }
 
@@ -167,7 +171,7 @@ public class WalletClientImpl implements WalletClient {
         Object transactionsJson = new ExtractAnswer().extractAnswerGet(path, restTemplate);
         System.out.println(transactionsJson);
         List<Transaction> t =  Arrays.asList(new Gson().fromJson(transactionsJson.toString(), Transaction[].class));
-        System.out.println("TYTTTTTT " + t);
+
         return t;
     }
 

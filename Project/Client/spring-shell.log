@@ -674,3 +674,53 @@
 1623714497097:obtain-money 10
 1623714501503:transfer-money FUND 1
 1623714503655:pick-not-mined-transactions
+1623851432574:obtain-money 10
+1623851440963:transfer-money FUND 1
+1623851449417:pick-not-mined-transactions
+1623851455007:help
+1623851474690:mine-block
+1623851480936:send-mine-block
+1623851588788:help
+1623851594683:get-last-mined-block
+1623851957360:obtain-money 10
+1623851963320:transfer-money FUND 1
+1623851966635:pick-not-mined-transactions
+1623851969822:get-last-mined-block
+1623851978131:mine-block
+1623851984496:send-mine-block
+1623852303250:obtain-money 10000
+1623852315227:transfer-money FUND 1
+1623852320970:current-amount
+1623852330746:pick-not-mined-transactions
+1623852385007:mine-block
+1623852398043:send-mine-block
+1623852719089:obtain-money 10
+1623852727906:transfer-money FUND 1
+1623852733606:pick-not-mined-transactions
+1623852738032:mine-block
+1623852909427:send-mine-block
+1623852947169:obtain-money 10
+1623852951013:transfer-money FUND 1
+1623852954585:pick-not-mined-transactions
+1623852960533:mine-block
+1623852975246:send-mine-block
+1623853254367:obtain-money 10
+1623853258569:transfer-money FUND 1
+1623853261796:pick-not-mined-transactions
+1623853281254:mine-block
+1623853287543:send-mine-block
+1623853465904:obtain-money 10
+1623853469715:transfer-money FUND 1
+1623853479429:pick-not-mined-transactions
+1623853488281:mine-block
+1623853501932:send-mine-block
+1623853593486:obtain-money 10
+1623853597257:transfer-money FUND 1
+1623853600917:pick-not-mined-transactions
+1623853608452:mine-block
+1623853661363:obtain-money 10
+1623853666475:transfer-money FUND 1
+1623853670662:pick-not-mined-transactions
+1623853673482:mine-block
+1623853684213:send-mine-block
+1623853786167:pick-not-mined-transactions

@@ -73,6 +73,10 @@ public class Block implements Serializable {
         return this.hash;
     }
 
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
     public String getPreviousHash() {
         return this.previousHash;
     }
