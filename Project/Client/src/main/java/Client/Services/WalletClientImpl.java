@@ -27,13 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.io.*;
+import java.security.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,6 +58,8 @@ public class WalletClientImpl implements WalletClient {
 
     private Block blockReceived;
 
+    PrivateKey privateKey;
+    PublicKey publicKey;
 
     private RestTemplate restTemplate;
 
@@ -86,7 +83,7 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @PostConstruct
-    public void init() throws ServerAnswerException {
+    public void init() throws ServerAnswerException, NoSuchAlgorithmException {
 
 
         List<ClientHttpRequestInterceptor> list = new LinkedList<>();
@@ -103,29 +100,36 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public int createClient() throws ServerAnswerException {
-
+    public int createClient() throws ServerAnswerException, NoSuchAlgorithmException {
+        KeyPairGenerator c = KeyPairGenerator.getInstance("RSA");
+        c.initialize(2048);
+        KeyPair k = c.genKeyPair();
+        privateKey = k.getPrivate();
+        publicKey = k.getPublic();
+        byte[] key = publicKey.getEncoded();
+        Map.Entry<byte[], String> clientEntry = Maps.immutableEntry(key, token);
+        System.out.println("CHEGUEI AQUI");
         //criar entry com a chave publica e o tokene enviar para o servidor
-        Object value = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + INIT, token, restTemplate);
+        Object value = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + INIT, clientEntry, restTemplate);
         return Integer.parseInt(value.toString());
     }
 
     @Override
     public void obtainCoins(Long amount) throws ServerAnswerException, NoSuchAlgorithmException {
         Transaction transaction = new Transaction(token, amount);
-        KeyPairGenerator c = KeyPairGenerator.getInstance("RSA");
-        c.initialize(256);
-        KeyPair k = c.genKeyPair();
-        PrivateKey pk = k.getPrivate();
+        Object[] request = new Object[3];
+        byte[] sign = TOMUtil.signMessage(privateKey, toBytes(transaction));
+        request[0] = token;
+        request[1] = sign;
+        request[2] = toBytes(transaction);
 
-        byte[] teste = TOMUtil.signMessage(pk, toBytes(transaction));
-        // new ExtractAnswer().extractAnswerPost(BASE +WALLET_CONTROLLER + OBTAIN_MONEY, teste, restTemplate);
-        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, transaction, restTemplate);
+        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, request, restTemplate);
     }
 
     @Override
     public void transferMoney(String toUser, Long amount) throws ServerAnswerException {
         Transaction transaction = new Transaction(token, toUser, amount);
+
         new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY, transaction, restTemplate);
     }
 
@@ -182,7 +186,9 @@ public class WalletClientImpl implements WalletClient {
     @Override
     public boolean sendMinedBlock() throws ServerAnswerException {
         Map.Entry<String, Block> blockEntry = Maps.immutableEntry(token, blockReceived);
-
+       /* Object[] b = new Object[100];
+        b[1] = token;
+        b[2] = blockReceived;*/
         Object answer = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + MINE_BLOCK, blockEntry, restTemplate);
         return Boolean.parseBoolean(answer.toString());
     }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface WalletClient {
 
-    int createClient() throws ServerAnswerException;
+    int createClient() throws ServerAnswerException, NoSuchAlgorithmException;
 
     void  obtainCoins( Long amount) throws ServerAnswerException, NoSuchAlgorithmException;
 

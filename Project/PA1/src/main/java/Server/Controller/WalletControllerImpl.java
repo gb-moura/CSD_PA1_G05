@@ -11,10 +11,23 @@ import Server.Repositories.WalletRepository;
 import Server.Util.Block;
 import Server.Util.Transaction;
 import Server.Util.UserAccount;
+import bftsmart.tom.util.TOMUtil;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +58,15 @@ public class WalletControllerImpl implements WalletController {
     private List<Block> queueToMine = new ArrayList<Block>();
 
     @Override
-    public int createClient(String id){
-        UserAccount user = getUser(id);
+    public int createClient(Map.Entry<byte[],String> clientEntry) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException {
+        UserAccount user = getUser(clientEntry.getValue());
         if(user != null ){
         return 0;
         }
+        PublicKey publicKey =
+                KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(clientEntry.getKey()));
 
-        UserAccount u = new UserAccount(id);
+        UserAccount u = new UserAccount(clientEntry.getValue(),publicKey);
         userRep.save(u);
         return 1;
 
@@ -66,7 +81,18 @@ public class WalletControllerImpl implements WalletController {
     }
 
     @Override
-    public void obtainCoins(Transaction transaction) {
+    public void obtainCoins(Object[] request) {
+        String token= String.valueOf(request[0]);
+        byte[] signature =(byte[]) request[1];
+        byte[] transactionBytes = (byte[])request[2];
+        UserAccount u = getUser(token);
+        if(u==null)
+            throw new UserDoesNotExistException(token);
+
+        boolean isCorrectSigned = TOMUtil.verifySignature(u.getPublicKey(),transactionBytes,signature);
+        if(isCorrectSigned){
+            Transaction transaction = (Transaction) fromBytes(transactionBytes);
+
 
         if (transaction.getAmount() < 0 || transaction.getTo().equals(SYSTEM_RESERVED_USER)) {
             throw new TransactionAmountNotValidException();
@@ -75,9 +101,10 @@ public class WalletControllerImpl implements WalletController {
         transaction.setFrom(SYSTEM_RESERVED_USER);
         walletRep.save(transaction);
         notMinedTransactions.add(transaction);
+        }else{
+            System.out.println("obtainCoins - isNotSigned?");
+        }
     }
-
-
 
     @Override
     public void transferMoney(Transaction transaction)   {
@@ -215,7 +242,22 @@ public class WalletControllerImpl implements WalletController {
         }
         return authorized;
     }
-    
-   
+
+    private Object fromBytes(byte[] bytes) {
+        ByteArrayInputStream bis = null;
+        ObjectInputStream ois = null;
+
+        try {
+            bis = new ByteArrayInputStream(bytes);
+            ois = new ObjectInputStream(bis);
+
+
+
+            return ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

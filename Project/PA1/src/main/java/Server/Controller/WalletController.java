@@ -2,12 +2,15 @@ package Server.Controller;
 
 import Server.Util.Block;
 import Server.Util.SystemReply;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import Server.Util.Transaction;
 
 
-
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +37,13 @@ WalletController {
     @PostMapping(
             value = INIT,
             consumes = APPLICATION_JSON_VALUE)
-    int createClient(@RequestBody String id);
+    int createClient(@RequestBody Map.Entry<byte[], String> clientEntry ) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException;
 
     void createGenesisBlock();
     @PostMapping(
             value = OBTAIN_COINS,
             consumes = APPLICATION_JSON_VALUE)
-    void obtainCoins(@RequestBody Transaction transaction);
+    void obtainCoins(@RequestBody Object[] request);
 
 
     @PostMapping(

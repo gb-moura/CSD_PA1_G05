@@ -4,13 +4,14 @@ package Server.Util;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
+import java.security.PublicKey;
 
 
 public class UserAccount implements Serializable {
 
 
     private String id;
-
+    private PublicKey publicKey;
 
 
 
@@ -18,10 +19,14 @@ public class UserAccount implements Serializable {
 
     }
 
-    public UserAccount(String id){
+    public UserAccount(String id,PublicKey publicKey){
         this.id = id;
+        this.publicKey=publicKey;
 
+    }
 
+    public PublicKey getPublicKey() {
+        return publicKey;
     }
 
     public String getId() {

@@ -6,7 +6,9 @@ import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable;
 import bftsmart.tom.util.TOMUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
+import org.glassfish.jersey.internal.guava.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,9 @@ import Server.Util.*;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +39,7 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 	private static final String DEFAULT_KEY_CONFIG = "";
 	private int counter = 0;
 	private RSAKeyLoader keyLoader;
+	private RSAKeyLoader keyFund;
 
 	@Value("${replica.id}")
 	private int ID;
@@ -49,11 +54,14 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 
 
 	@PostConstruct
-	public void init(){
+	public void init() throws Exception {
 		mongoTemplate.getDb().drop();
 		new ServiceReplica(ID, this, this);
 		this.keyLoader = new RSAKeyLoader(ID, DEFAULT_KEY_CONFIG);
-		walletController.createClient("FUND");
+		this.keyFund = new RSAKeyLoader(4,DEFAULT_KEY_CONFIG);
+		byte[] empty = keyFund.loadPublicKey().getEncoded();
+		Map.Entry<byte[],String> clientEntry =  Maps.immutableEntry(empty, "FUND");
+		walletController.createClient(clientEntry);
 		walletController.createGenesisBlock();
 	}
 
@@ -84,15 +92,17 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 			//verificar se a assinatura e do cliente correto caso afirmativo prossegue para a execucao do metodo caso negativo responde deu merda
 			 Path path = (Path)objIn.readObject();
 			logger.info(String.format("Searching for %s to invoke.", path));
+
 			switch(path){
 				case INIT:
-					String r = String.valueOf(walletController.createClient((String)objIn.readObject()));
+					System.out.println("Entrei no init");
+					String r = String.valueOf(walletController.createClient((Map.Entry<byte[],String>)objIn.readObject()));
 					logger.info("Successfully created client");
 					objOut.writeObject(r);
 					counter++;
 					return new Gson().toJson(r).getBytes();
 				case OBTAIN_COINS:
-					walletController.obtainCoins((Transaction)objIn.readObject());
+					walletController.obtainCoins((Object[]) objIn.readObject());
 					logger.info("Successfully completed createMoney");
 					objOut.writeObject(new VoidObject());
 					counter++;
@@ -120,18 +130,15 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 					return new Gson().toJson(res1).getBytes();
 				case OBTAIN_LAST_MINED_BLOCK:
 					Block b = walletController.obtainLastMinedBlock();
-					System.out.println("BLOCK B: " + b);
 					objOut.writeObject(b);
 					logger.info("Successfully completed obtainLastMinedBlock");
 					return new Gson().toJson(b).getBytes();
 				case PICK_NOT_MIN_TRANS:
 					Block pick = walletController.pickNotMineratedTransactions((String)objIn.readObject());
-					System.out.println("BLOCO PICKED     " + pick);
 					objOut.writeObject(pick);
 					logger.info("Successfully completed pickNotMineratedTransactions");
 					Gson g = new Gson();
 					String x = g.toJson(pick);
-					System.out.println("GSON              "+x);
 					return x.getBytes();
 				case MINE_BLOCK:
 					boolean mined = walletController.sendMinedBlock((Map.Entry<String, Block>) objIn.readObject());

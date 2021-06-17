@@ -57,7 +57,7 @@ public class ReplyListenerImp <E> implements ReplyListener {
     }
 
     private boolean hasValidQuorum() {
-        double quorum = (Math.ceil((double) (asyncSP.getViewManager().getCurrentViewN() + //4
+        double quorum = (Math.ceil((double) (asyncSP.getViewManager().getCurrentViewN() +
                 asyncSP.getViewManager().getCurrentViewF() + 1) / 2.0));
         return repliesCounter.incrementAndGet() >= quorum && receivedFromThisReplica;
     }

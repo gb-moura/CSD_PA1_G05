@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public interface AsyncWalletController {
             value = INIT,
 
             produces = APPLICATION_JSON_VALUE)
-    SystemReply createClient(@RequestBody String id);
+    SystemReply createClient(@RequestBody Map.Entry<byte[],String> clientEntry);
 
     void createGenesisBlock();
 
@@ -42,7 +43,7 @@ public interface AsyncWalletController {
             value = OBTAIN_COINS,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    SystemReply obtainCoins(@RequestBody Transaction transaction);
+    SystemReply obtainCoins(@RequestBody Object[] request);
 
 
 

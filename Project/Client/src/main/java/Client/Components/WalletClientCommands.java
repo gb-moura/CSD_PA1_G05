@@ -13,6 +13,7 @@ import Client.Util.Transaction;
 import Client.Services.WalletClient;
 import Client.Exceptions.ServerAnswerException;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class WalletClientCommands {
     try{
         client.obtainCoins(amount);
         return  "Money added successfully";
-    }catch(ServerAnswerException e){
+    }catch(ServerAnswerException | NoSuchAlgorithmException e){
         return e.getMessage();
     }
 
