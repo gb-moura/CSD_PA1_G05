@@ -32,6 +32,9 @@ WalletController {
     String PICK_NOT_MIN_TRANS = "/picknotminedtransactions/{id}";
     String MINE_BLOCK ="/mineblock";
     String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
+    String TRANSFER_MONEY_PRIVACY = "/transferMoneyWithPrivacy";
+    String GET_LEDGER_GLOBAL = "/globalLedger/{id}";
+
 
 
     @PostMapping(
@@ -43,13 +46,13 @@ WalletController {
     @PostMapping(
             value = OBTAIN_COINS,
             consumes = APPLICATION_JSON_VALUE)
-    void obtainCoins(@RequestBody Transaction transaction) throws IOException;
+    int obtainCoins(@RequestBody Transaction transaction) throws IOException;
 
 
     @PostMapping(
             value = TRANSFER_MONEY,
             consumes = APPLICATION_JSON_VALUE)
-    void transferMoney(@RequestBody Transaction transaction) throws InterruptedException;
+    int transferMoney(@RequestBody Transaction transaction) throws InterruptedException;
 
     @GetMapping(
             value =  GET_MONEY,
@@ -57,14 +60,14 @@ WalletController {
     Long currentAmount(@PathVariable("id") String id) throws InterruptedException;
 
     @GetMapping(
-            value =  GET_LEDGER,
+            value =  GET_LEDGER_GLOBAL,
             produces = APPLICATION_JSON_VALUE)
-    List<ITransaction> ledgerOfGlobalTransactions();
+    List<Transaction> ledgerOfGlobalTransactions(@PathVariable("id") String id);
 
     @GetMapping(
             value =  GET_CLIENT_LEDGER,
             produces = APPLICATION_JSON_VALUE)
-    List<ITransaction> ledgerOfClientTransfers(@PathVariable("id") String id);
+    List<Transaction> ledgerOfClientTransfers(@PathVariable("id") String id);
 
 
     @GetMapping(
@@ -81,11 +84,17 @@ WalletController {
             value = MINE_BLOCK,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    boolean sendMinedBlock(@RequestBody Map.Entry<String,Block> entry) throws InterruptedException;
+    boolean sendMinedBlock(@RequestBody Map.Entry<String,Block> entry) throws InterruptedException, IOException;
 
     @PostMapping(
             value = TRANSFER_MONEY_SMRCONTRACT,
             consumes = APPLICATION_JSON_VALUE)
-    void transferMoneyWithSmr(@RequestBody SmartContract smrContract) throws InterruptedException;
+    int transferMoneyWithSmr(@RequestBody SmartContract smrContract) throws InterruptedException;
+
+    @PostMapping(
+            value = TRANSFER_MONEY_PRIVACY,
+            consumes = APPLICATION_JSON_VALUE)
+    int transferMoneyWithPrivacy(@RequestBody Transaction transaction) ;
+
 }
 

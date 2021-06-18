@@ -766,3 +766,103 @@
 1623983838065:obtain-money 10
 1623983839933:transfer-money-with-smr-contract rsales 5
 1623983853971:current-amount
+1624027630900:obtain-money 20
+1624027638376:transfer-money rsales 5
+1624027651497:transfer-money-with-privacy rsales 5
+1624027661727:ledger
+1624027772379:obtain-money 20
+1624027780438:transfer-money rsales 5
+1624027787311:transfer-money-with-privacy 5
+1624027793946:transfer-money-with-privacy rsales 5
+1624027795981:ledger
+1624027841999:client-ledger
+1624028110622:obtain-money 20
+1624028113485:ledger
+1624028127073:transfer-money rsales 10
+1624028144444:transfer-money-with-privacy rsales 10
+1624028145990:ledger
+1624028245551:obtain-money 10
+1624028259334:transfer-money-with-privacy rsales 10
+1624028288384:ledger
+1624028365731:obtain-money 10
+1624028378833:transfer-money-with-privacy fagomes 2
+1624028391945:client-ledger
+1624028747659:obtain-money 10
+1624028752823:transfer-money rs 2
+1624028761397:transfer-money-with-privacy 2
+1624028770896:transfer-money-with-privacy rs  2
+1624028775116:ledger
+1624029081433:obtain-money 10
+1624029094215:transfer-money-with-privacy rs 2
+1624029181578:ledger
+1624029440379:obtain-money 10
+1624029453451:transfer-money-with-privacy rs 2
+1624029618707:obtain-money 10
+1624029620518:transfer-money-with-privacy rs 2
+1624029625741:ledger
+1624029673060:ledger
+1624029684009:client-ledger
+1624029814352:obtain-money 10
+1624029834065:transfer-money-with-privacy rs 2
+1624029838687:client-ledger
+1624032489990:obtain-money 10
+1624032493729:obtain-money 2
+1624032500869:obtain-money 20
+1624032504131:ledger
+1624032508901:client-ledger
+1624032654224:obtain-money 20
+1624032657495:obtain-money 25
+1624032661146:obtain-money 40
+1624032672352:client-ledger-with-filter 2 10
+1624033167734:obtain-money 40
+1624033169968:client-ledger-with-filter 2 10
+1624033759972:obtain-money 10
+1624033763598:current-amount
+1624033777265:transfer-money g 10
+1624033783499:ledger
+1624033855242:obtain-money 10
+1624033861428:transfer-money g 10
+1624033864977:current-amount
+1624033974117:obtain-money 100
+1624033980335:transfer-money g 100
+1624033982669:current-amount
+1624034441273:obtain-money 10
+1624034445829:transfer-money r 10
+1624034650483:obtain-money 10
+1624034654229:transfer-money r 10
+1624034671348:current-amount
+1624034783004:obtain-money 10
+1624034786659:transfer-money r 10
+1624034810450:transfer-money r 20
+1624035208153:obtain-money -10
+1624035962419:transfer-money-with-smr-contract r 10
+1624035970864:transfer-money-with-privacy r 10
+1624035980252:obtain-money 20
+1624035986265:transfer-money FUND 1
+1624036003580:help
+1624036013042:pick-not-mined-transactions
+1624036422375:obtain-money 20
+1624036429040:transfer-money FUND 1
+1624036432475:pick-not-mined-transactions
+1624036439150:mine-block
+1624036444272:send-mine-block
+1624036457885:current-amount
+1624036663444:obtain-money 20
+1624036668013:transfer-money FUND 1
+1624036674507:pick-not-mined-transactions
+1624036678414:mine-block
+1624036682036:send-mine-block
+1624036696316:current-amount
+1624036766042:obtain-money 20
+1624036772396:transfer-money FUND 6.25
+1624036778119:transfer-money FUND 6
+1624036784039:pick-not-mined-transactions
+1624036792163:mine-block
+1624036796698:send-mine-block
+1624036812811:current-amount
+1624036840844:obtain-money 20
+1624036842881:current-amount
+1624036847255:pick-not-mined-transactions
+1624036851247:mine-block
+1624036854608:send-mine-block
+1624036871006:current-amount

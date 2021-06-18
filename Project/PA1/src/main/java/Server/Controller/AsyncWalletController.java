@@ -27,6 +27,9 @@ public interface AsyncWalletController {
     String PICK_NOT_MIN_TRANS = "/picknotminedtransactions/{id}";
     String MINE_BLOCK ="/mineblock";
     String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
+    String TRANSFER_MONEY_PRIVACY = "/transferMoneyWithPrivacy";
+    String GET_LEDGER_GLOBAL = "/globalLedger/{id}";
+
 
 
 
@@ -60,14 +63,16 @@ public interface AsyncWalletController {
     SystemReply currentAmount(@PathVariable("id") String id);
 
     @GetMapping(
-            value =  GET_LEDGER,
+            value =  GET_LEDGER_GLOBAL,
             produces = APPLICATION_JSON_VALUE)
-    SystemReply ledgerOfGlobalTransactions();
+    SystemReply ledgerOfGlobalTransactions(@PathVariable("id") String id);
 
     @GetMapping(
             value =  GET_CLIENT_LEDGER,
             produces = APPLICATION_JSON_VALUE)
     SystemReply ledgerOfClientTransfers(@PathVariable("id") String id);
+
+
 
     @GetMapping(
             value =  OBTAIN_LAST_MINED_BLOCK,
@@ -88,5 +93,10 @@ public interface AsyncWalletController {
             value = TRANSFER_MONEY_SMRCONTRACT,
             consumes = APPLICATION_JSON_VALUE)
     SystemReply transferMoneyWithSmr(@RequestBody  SmartContract smrContract) throws InterruptedException;
+
+    @PostMapping(
+            value = TRANSFER_MONEY_PRIVACY,
+            consumes = APPLICATION_JSON_VALUE)
+    SystemReply transferMoneyWithPrivacy(@RequestBody Transaction transaction) throws InterruptedException;
 
 }

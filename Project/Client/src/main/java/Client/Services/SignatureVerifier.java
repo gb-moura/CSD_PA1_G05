@@ -28,6 +28,4 @@ public class SignatureVerifier {
             return false;
         }
     }
-
-
 }

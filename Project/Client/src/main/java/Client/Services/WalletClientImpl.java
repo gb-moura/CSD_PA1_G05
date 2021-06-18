@@ -4,7 +4,6 @@ import Client.Exceptions.ServerAnswerException;
 import Client.Handlers.RestTemplateHeaderModifierInterceptor;
 import Client.Handlers.RestTemplateResponseErrorHandler;
 import Client.Util.Block;
-import Client.Util.ITransaction;
 import Client.Util.SmartContract;
 import Client.Util.Transaction;
 import bftsmart.tom.util.TOMUtil;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
 import java.security.*;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -48,11 +46,13 @@ public class WalletClientImpl implements WalletClient {
     private static final String TRANSFER_MONEY = "/transfer";
     private static final String GET_MONEY = "/current";
     private static final String GET_LEDGER = "/ledger";
+    private static final String GET_LEDGER_GLOBAL = "/globalLedger";
     private static final String INIT = "/createClient";
     private static final String OBTAIN_LAST_MINED_BLOCK = "/obtainlastminedblock";
     private static final String PICK_NOT_MIN_TRANS = "/picknotminedtransactions";
     private static final String MINE_BLOCK = "/mineblock";
     private static final String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
+    private static final String TRANSFER_MONEY_PRIVACY = "/transferMoneyWithPrivacy";
 
     private Block blockReceived;
 
@@ -106,33 +106,33 @@ public class WalletClientImpl implements WalletClient {
         publicKey = k.getPublic();
         byte[] key = publicKey.getEncoded();
         Map.Entry<byte[], String> clientEntry = Maps.immutableEntry(key, token);
-        System.out.println("CHEGUEI AQUI");
-        //criar entry com a chave publica e o tokene enviar para o servidor
         Object value = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + INIT, clientEntry, restTemplate);
         return Integer.parseInt(value.toString());
     }
 
     @Override
-    public void obtainCoins(Long amount) throws ServerAnswerException, NoSuchAlgorithmException {
-        ITransaction transaction = new Transaction(token, amount);
+    public int obtainCoins(Long amount) throws ServerAnswerException, NoSuchAlgorithmException {
+        Transaction transaction = new Transaction(token, amount);
 
         byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
         byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
         transaction.setSign(sign);
         transaction.setBytes(byteTransaction);
 
-        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, transaction, restTemplate);
+       Object answer = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, transaction, restTemplate);
+        return Integer.parseInt(answer.toString());
     }
 
     @Override
-    public void transferMoney(String toUser, Long amount) throws ServerAnswerException {
-        ITransaction transaction = new Transaction(token, toUser, amount);
+    public int  transferMoney(String toUser, Long amount) throws ServerAnswerException {
+        Transaction transaction = new Transaction(token, toUser, amount);
         byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
         byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
         transaction.setSign(sign);
         transaction.setBytes(byteTransaction);
 
-        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY, transaction, restTemplate);
+        Object answer = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY, transaction, restTemplate);
+        return Integer.parseInt(answer.toString());
     }
 
     @Override
@@ -142,14 +142,15 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public List<ITransaction> ledgerOfGlobalTransfers() throws ServerAnswerException {
-        return getLedgerFromPath(BASE + WALLET_CONTROLLER + GET_LEDGER);
+    public List<Transaction> ledgerOfGlobalTransfers() throws ServerAnswerException, JsonProcessingException {
+        return getLedgerFromPath(BASE + WALLET_CONTROLLER + GET_LEDGER_GLOBAL  + "/" + token);
     }
 
     @Override
-    public List<ITransaction> LedgerOfClientTransfers() throws ServerAnswerException {
+    public List<Transaction> LedgerOfClientTransfers() throws ServerAnswerException, JsonProcessingException {
         return getLedgerFromPath(BASE + WALLET_CONTROLLER + GET_LEDGER + "/" + token);
     }
+
 
     @Override
     public Block obtainLastMinedBlock() throws ServerAnswerException, JsonProcessingException {
@@ -193,7 +194,7 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public void transferMoneyWithSmrContract(String toUser, Long amount) throws ServerAnswerException {
+    public int transferMoneyWithSmrContract(String toUser, Long amount) throws ServerAnswerException {
         Transaction transaction = new Transaction(token,toUser,amount);
         byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
         byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
@@ -203,33 +204,37 @@ public class WalletClientImpl implements WalletClient {
 
 
 
-        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY_SMRCONTRACT , smrContract, restTemplate);
+       Object answer = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY_SMRCONTRACT , smrContract, restTemplate);
+        return Integer.parseInt(answer.toString());
+    }
+
+    @Override
+    public int transferMoneyWithPrivacy(String to, Long amount) throws ServerAnswerException {
+
+
+        Transaction transaction = new Transaction(token, to, amount,true);
+        byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
+        byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
+        transaction.setSign(sign);
+        transaction.setBytes(byteTransaction);
+        System.out.println(transaction.isPrivacy());
+
+       Object answer =  new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY_PRIVACY, transaction, restTemplate);
+        return Integer.parseInt(answer.toString());
 
     }
 
-
-    private List<ITransaction> getLedgerFromPath(String path) throws ServerAnswerException {
+    private List<Transaction> getLedgerFromPath(String path) throws ServerAnswerException, JsonProcessingException {
 
         Object transactionsJson = new ExtractAnswer().extractAnswerGet(path, restTemplate);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String jsonString = new ObjectMapper().writeValueAsString(transactionsJson);
 
-        return Arrays.asList(new Gson().fromJson(transactionsJson.toString(), Transaction[].class));
+        return Arrays.asList(new Gson().fromJson(jsonString, Transaction[].class));
     }
 
-    private byte[] toBytes(Object obj) {
-        ByteArrayOutputStream bos = null;
-        ObjectOutputStream oos = null;
 
-        try {
-            bos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(bos);
-            oos.writeObject(obj);
-            oos.flush();
-
-            return bos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 }

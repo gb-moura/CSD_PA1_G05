@@ -25,9 +25,7 @@ import Server.Util.*;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -87,44 +85,40 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 			 ObjectInput objIn = new ObjectInputStream(byteIn);
 			 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			 ObjectOutput objOut = new ObjectOutputStream(byteOut)) {
-			//PublicKey key = new RSAKeyLoader().
-			//	loadPublicKey();
-			//verificar se a assinatura e do cliente correto caso afirmativo prossegue para a execucao do metodo caso negativo responde deu merda
 			 Path path = (Path)objIn.readObject();
 			logger.info(String.format("Searching for %s to invoke.", path));
 
 			switch(path){
 				case INIT:
-					System.out.println("Entrei no init");
 					String r = String.valueOf(walletController.createClient((Map.Entry<byte[], String>) objIn.readObject()));
 					logger.info("Successfully created client");
 					objOut.writeObject(r);
 					counter++;
 					return new Gson().toJson(r).getBytes();
 				case OBTAIN_COINS:
-					walletController.obtainCoins((Transaction) objIn.readObject());
+					String ans = String.valueOf(walletController.obtainCoins((Transaction) objIn.readObject()));
 					logger.info("Successfully completed createMoney");
-					objOut.writeObject(new VoidObject());
+					objOut.writeObject(ans);
 					counter++;
-					return new Gson().toJson("").getBytes();
+					return new Gson().toJson(ans).getBytes();
 				case TRANSFER_MONEY:
-					walletController.transferMoney((Transaction)objIn.readObject());
+					String a =	String.valueOf(walletController.transferMoney((Transaction)objIn.readObject()));
 					logger.info("Successfully completed transferMoney");
-					objOut.writeObject(new VoidObject());
+					objOut.writeObject(a);
 					counter++;
-					return new Gson().toJson("").getBytes();
+					return new Gson().toJson(a).getBytes();
 				case GET_MONEY:
 					String result = String.valueOf(walletController.currentAmount((String)objIn.readObject()));
 					objOut.writeObject(result);
 					logger.info("Successfully completed currentAmount");
 					return new Gson().toJson(result).getBytes();
-				case GET_LEDGER:
-					List<ITransaction> res = walletController.ledgerOfGlobalTransactions();
+				case GET_LEDGER_GLOBAL:
+					List<Transaction> res = walletController.ledgerOfGlobalTransactions((String)objIn.readObject());
 					objOut.writeObject( res);
 					logger.info("Successfully completed ledgerOfClientTransfers");
 					return new Gson().toJson(res).getBytes();
 				case GET_CLIENT_LEDGER:
-					List<ITransaction> res1 = walletController.ledgerOfClientTransfers((String)objIn.readObject());
+					List<Transaction> res1 = walletController.ledgerOfClientTransfers((String)objIn.readObject());
 					objOut.writeObject(res1);
 					logger.info("Successfully completed ledgerOfClientTransfers");
 					return new Gson().toJson(res1).getBytes();
@@ -146,11 +140,17 @@ public class Server extends DefaultSingleRecoverable implements Runnable{
 					logger.info("Successfully completed mineBlock");
 					return new Gson().toJson(mined).getBytes();
 				case TRANSFER_MONEY_SMRCONTRACT:
-					walletController.transferMoneyWithSmr((SmartContract )objIn.readObject());
+					String answ = String.valueOf(walletController.transferMoneyWithSmr((SmartContract )objIn.readObject()));
 					logger.info("Successfully completed transferMoney with Smart Contract");
-					objOut.writeObject(new VoidObject());
+					objOut.writeObject(answ);
 					counter++;
-					return new Gson().toJson("").getBytes();
+					return new Gson().toJson(answ).getBytes();
+				case TRANSFER_MONEY_PRIVACY:
+					String answe = String.valueOf(walletController.transferMoneyWithPrivacy((Transaction)objIn.readObject()));
+					logger.info("Successfully completed transferMoney with privacy");
+					objOut.writeObject(answe);
+					counter++;
+					return new Gson().toJson(answe).getBytes();
 				default:
 					logger.error("Not implemented");
 					break;

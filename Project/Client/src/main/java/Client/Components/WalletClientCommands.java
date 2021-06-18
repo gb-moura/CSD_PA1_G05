@@ -1,7 +1,7 @@
 package Client.Components;
 
 import Client.Util.Block;
-import Client.Util.ITransaction;
+import Client.Util.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import Client.Annotations.NONAUTO;
-import Client.Util.Transaction;
 import Client.Services.WalletClient;
 import Client.Exceptions.ServerAnswerException;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
 
-@NONAUTO
+
+
 @ShellComponent
 public class WalletClientCommands {
 
@@ -37,8 +34,13 @@ public class WalletClientCommands {
     @ShellMethod("Create money to a specified user")
     public String obtainMoney( Long amount)  {
     try{
-        client.obtainCoins(amount);
-        return  "Money added successfully";
+        int ans =  client.obtainCoins(amount);
+        if(ans == 1){
+            return  "Money added successfully!";
+        }else{
+            return "Money was not added!";
+        }
+
     }catch(ServerAnswerException | NoSuchAlgorithmException e){
         return e.getMessage();
     }
@@ -50,8 +52,12 @@ public class WalletClientCommands {
     public String transferMoney( @ShellOption() String toUser, @ShellOption() Long amount)
     {
         try{
-            client.transferMoney(toUser,amount);
-            return "Money was transferred to " + toUser+".\n" +  "Amount: " + amount ;
+           int response = client.transferMoney(toUser,amount);
+           if(response == 1) {
+               return "Money was transferred to " + toUser + ".\n" + "Amount: " + amount;
+           }else{
+           return  "Money was not transferred";
+           }
 
         }catch(ServerAnswerException e){
             return e.getMessage();
@@ -63,9 +69,8 @@ public class WalletClientCommands {
     @ShellMethod("See the provided user money")
     public String currentAmount() {
         try{
-            System.out.println("IDDDD " + token);
             Long response = client.currentAmount(token);
-            if(response==0L){
+            if(response==null){
                 return "The user does not exists";
             }else{
                 return "You have: " + response ;
@@ -83,7 +88,7 @@ public class WalletClientCommands {
         try {
             return transformListOfTransactionInString(
                     client.ledgerOfGlobalTransfers());
-        } catch (ServerAnswerException e) {
+        } catch (ServerAnswerException | JsonProcessingException e) {
             return e.getMessage();
         }
     }
@@ -95,10 +100,12 @@ public class WalletClientCommands {
         try {
             return transformListOfTransactionInString(
                     client.LedgerOfClientTransfers());
-        } catch (ServerAnswerException e) {
+        } catch (ServerAnswerException | JsonProcessingException e) {
             return e.getMessage();
         }
     }
+
+
 
     @ShellMethod("Obtains the last mined block")
     public String getLastMinedBlock(){
@@ -131,7 +138,6 @@ public class WalletClientCommands {
     public String sendMineBlock(){
         try{
            boolean answer = client.sendMinedBlock();
-            System.out.println("ANSWER   " + answer);
            if(answer){
                 return "Block successfully added to blockchain";
            }
@@ -145,7 +151,26 @@ public class WalletClientCommands {
     public String transferMoneyWithSmrContract( @ShellOption() String toUser, @ShellOption() Long amount)
     {
         try{
-            client.transferMoneyWithSmrContract(toUser,amount);
+          int answer =  client.transferMoneyWithSmrContract(toUser,amount);
+          if(answer == 0){
+              return "Money was not transferred";
+          }
+            return "Money was transferred to " + toUser+".\n" +  "Amount: " + amount ;
+
+        }catch(ServerAnswerException e){
+            return e.getMessage();
+        }
+
+    }
+
+    @ShellMethod("Transfer money from a provided user to other provided user")
+    public String transferMoneyWithPrivacy( @ShellOption() String toUser, @ShellOption() Long amount)
+    {
+        try{
+           int answer =  client.transferMoneyWithPrivacy(toUser,amount);
+            if(answer == 0){
+                return "Money was not transferred";
+            }
             return "Money was transferred to " + toUser+".\n" +  "Amount: " + amount ;
 
         }catch(ServerAnswerException e){
@@ -170,13 +195,14 @@ public class WalletClientCommands {
 
 
 
-    private String transformListOfTransactionInString(List<ITransaction> transactionsList){
+    private String transformListOfTransactionInString(List<Transaction> transactionsList){
         if (transactionsList.isEmpty())
             return "No transactions performed.";
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("Ledger:\n");
 
-        for(ITransaction transaction : transactionsList){
+        for(Transaction transaction : transactionsList){
+
             stringBuffer.append(String.format("Transfer from %s to %s of %d\n",
                     transaction.getFrom(),transaction.getTo(),transaction.getAmount()));
         }

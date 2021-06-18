@@ -71,9 +71,9 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
     }
 
     @Override
-    public SystemReply ledgerOfGlobalTransactions() {
+    public SystemReply ledgerOfGlobalTransactions(String userId) {
         logger.info("Proxy received request ledgerOfGlobalTransfers");
-        return clientAsyncReplicator.invokeUnorderedReplication(Path.GET_LEDGER);
+        return clientAsyncReplicator.invokeUnorderedReplication(userId,Path.GET_LEDGER_GLOBAL);
     }
 
 
@@ -84,6 +84,8 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
         return clientAsyncReplicator.invokeUnorderedReplication(userId,Path.GET_CLIENT_LEDGER);
 
     }
+
+
 
     @Override
     public SystemReply obtainLastMinedBlock() {
@@ -101,26 +103,17 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
     }
 
     @Override
-    public SystemReply transferMoneyWithSmr(SmartContract smrContract) throws InterruptedException {
+    public SystemReply transferMoneyWithSmr(SmartContract smrContract)  {
         logger.info("Proxy received request transferMoney with smart contract");
         return clientAsyncReplicator.invokeUnorderedReplication(smrContract,Path.TRANSFER_MONEY_SMRCONTRACT);
     }
 
-
-    private Object fromBytes(byte[] bytes) {
-        ByteArrayInputStream bis = null;
-        ObjectInputStream ois = null;
-
-        try {
-            bis = new ByteArrayInputStream(bytes);
-            ois = new ObjectInputStream(bis);
-
-
-
-            return ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    @Override
+    public SystemReply transferMoneyWithPrivacy(Transaction transaction)  {
+        logger.info("Proxy received request transferMoney with privacy");
+        return clientAsyncReplicator.invokeUnorderedReplication(transaction,Path.TRANSFER_MONEY_PRIVACY);
     }
+
+
+
 }

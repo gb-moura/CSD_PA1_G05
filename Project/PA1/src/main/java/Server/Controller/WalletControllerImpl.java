@@ -2,24 +2,14 @@
 package Server.Controller;
 
 
-import Server.Exceptions.TheClientAlreadyExists;
-import Server.Exceptions.TransactionAmountNotValidException;
 import Server.Exceptions.UserDoesNotExistException;
 import Server.Repositories.BlockRepository;
 import Server.Repositories.UsersRepository;
 import Server.Repositories.WalletRepository;
 import Server.Util.*;
 import bftsmart.tom.util.TOMUtil;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.*;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -34,8 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class WalletControllerImpl implements WalletController {
 
     public static final String SYSTEM_RESERVED_USER = "SYSTEM";
-    private final Logger logger =
-            LoggerFactory.getLogger(WalletControllerImpl.class);
+
 
 
     @Autowired
@@ -49,13 +38,13 @@ public class WalletControllerImpl implements WalletController {
 
     private Block lastMinedBlockAdded;
 
-    private List<ITransaction> notMinedTransactions = new ArrayList<ITransaction>();
-    private List<Block> queueToMine = new ArrayList<Block>();
+    private final List<Transaction> notMinedTransactions = new ArrayList<Transaction>();
+    private final List<Block> queueToMine = new ArrayList<Block>();
 
-    private Map<String,PublicKey> keys = new HashMap<>();
+    private final Map<String,PublicKey> keys = new HashMap<>();
 
     @Override
-    public int createClient(Map.Entry<byte[],String> clientEntry) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public int createClient(Map.Entry<byte[],String> clientEntry) throws NoSuchAlgorithmException, InvalidKeySpecException {
         UserAccount user = getUser(clientEntry.getValue());
         if(user != null ){
             return 0;
@@ -64,9 +53,8 @@ public class WalletControllerImpl implements WalletController {
                 KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(clientEntry.getKey()));
 
         UserAccount u = new UserAccount(clientEntry.getValue());
-        System.out.println("KEY: " + publicKey);
+
         keys.put(u.getId(),publicKey);
-        System.out.println("ADICIONEI AO MAPA " + keys.get(u.getId()));
         userRep.save(u);
         return 1;
 
@@ -74,54 +62,56 @@ public class WalletControllerImpl implements WalletController {
 
     @Override
     public void createGenesisBlock() {
-        List<ITransaction> emptyList = new ArrayList<>();
+        List<Transaction> emptyList = new ArrayList<>();
         Block b = new Block(emptyList," ");
         blockchain.save(b);
         lastMinedBlockAdded=b;
     }
 
     @Override
-    public void obtainCoins(Transaction transaction) throws IOException {
+    public int obtainCoins(Transaction transaction) throws IOException {
 
         String token = transaction.getTo();
         UserAccount u = getUser(token);
         byte[] signature = transaction.getSign();
 
         if(u==null)
-            throw new UserDoesNotExistException(token);
+           return 0;
         boolean isCorrectSigned = TOMUtil.verifySignature(keys.get(token),transaction.getBytes(),signature);
         if(isCorrectSigned){
 
             if (transaction.getAmount() < 0 || transaction.getTo().equals(SYSTEM_RESERVED_USER)) {
-                throw new TransactionAmountNotValidException();
+                return 0;
             }
 
             transaction.setFrom(SYSTEM_RESERVED_USER);
             walletRep.save(transaction);
             notMinedTransactions.add(transaction);
+            return 1;
         }else{
-            System.out.println("obtainCoins - isNotSigned?");
+           return 0;
         }
     }
 
     @Override
-    public void transferMoney(Transaction transaction) {
+    public int transferMoney(Transaction transaction) {
         String token = transaction.getFrom();
         UserAccount u = getUser(token);
+        UserAccount t = getUser(transaction.getTo());
         byte[] signature = transaction.getSign();
-        if (u == null)
-            throw new UserDoesNotExistException(token);
+        if (u == null || t == null)
+           return 0;
         boolean isCorrectSigned = TOMUtil.verifySignature(keys.get(token), transaction.getBytes(), signature);
         if (isCorrectSigned) {
             Long fromAmount = currentAmount(transaction.getFrom());
             if (fromAmount < transaction.getAmount() || transaction.getAmount() < 0)
-                throw new TransactionAmountNotValidException();
-
+                return 0;
 
             walletRep.save(transaction);
             notMinedTransactions.add(transaction);
+            return 1;
         } else {
-            System.out.println("obtainCoins - isNotSigned?");
+            return 0;
         }
     }
 
@@ -130,11 +120,12 @@ public class WalletControllerImpl implements WalletController {
     public Long currentAmount(String id)  {
 
         Long amount = 0L;
-        List<ITransaction> clientLedger = ledgerOfClientTransfers(id);
-        for(ITransaction t: clientLedger){
-            if(t.getTo().equals(id)){
+        List<Transaction> clientLedger = ledgerOfClientTransfers(id);
+        String publicKey = String.valueOf(keys.get(id).hashCode());
+        for(Transaction t: clientLedger){
+            if(t.getTo().equals(id) || t.getTo().equals(publicKey)){
                 amount+=t.getAmount();
-            }else if(t.getFrom().equals(id)){
+            }else if(t.getFrom().equals(id) || t.getFrom().equals(publicKey)){
                 amount-=t.getAmount();
             }
         }
@@ -145,28 +136,47 @@ public class WalletControllerImpl implements WalletController {
 
 
     @Override
-    public List<ITransaction> ledgerOfGlobalTransactions() {
-
-        return walletRep.findAll();
+    public List<Transaction> ledgerOfGlobalTransactions(String id) {
+        List<Transaction> transactions = walletRep.findAll();
+        String userKey =  String.valueOf(keys.get(id).hashCode());
+        for(Transaction t: transactions){
+            if(t.isPrivacy()){
+                System.out.println("SOU PRIVADO");
+                if(!(t.getFrom().equals(userKey) || t.getTo().equals(userKey))){
+                    System.out.println("ENTREI AQUI");
+                    t.setFrom("UNKNOWN");
+                    t.setTo("UNKNOWN");
+                    t.setAmount(-1L);
+                }
+            }
+        }
+        return transactions;
 
     }
 
     @Override
-    public List<ITransaction> ledgerOfClientTransfers(String id) {
+    public List<Transaction> ledgerOfClientTransfers(String id) {
         UserAccount user = getUser(id);
         if(user == null){
             throw  new UserDoesNotExistException(id);
         }
 
-        List<ITransaction> clientTransactions = new ArrayList<>();
-        List<ITransaction> transactions = walletRep.findAll();
-        for(ITransaction t: transactions){
-            if(t.getFrom().equals(id) || t.getTo().equals(id)){
+        List<Transaction> clientTransactions = new ArrayList<>();
+        List<Transaction> transactions = walletRep.findAll();
+        String fromKey = String.valueOf(keys.get(id).hashCode());
+        for(Transaction t: transactions){
+
+            if(t.getFrom().equals(id) || t.getTo().equals(id)  ){
+                clientTransactions.add(t);
+            }
+            if(t.getFrom().equals(fromKey) || t.getTo().equals(fromKey)){
                 clientTransactions.add(t);
             }
         }
         return clientTransactions;
     }
+
+
 
 
     @Override
@@ -187,14 +197,11 @@ public class WalletControllerImpl implements WalletController {
     }
 
     @Override
-    public boolean sendMinedBlock(Map.Entry<String,Block> entry) throws InterruptedException {
+    public boolean sendMinedBlock(Map.Entry<String,Block> entry) throws InterruptedException, IOException {
         Block newestBlock = null;
-        long newestTimestamp = 0L;
         int maxListSize=0;
         Block block = entry.getValue();
-        System.out.println(block);
         if(isAuthorized(entry.getKey())){
-            System.out.println("TENHO PERMI para entrar");
             if(block.getHash().startsWith("0")){
                 queueToMine.add(block);
                 TimeUnit.SECONDS.sleep(10);
@@ -217,6 +224,8 @@ public class WalletControllerImpl implements WalletController {
             }
         }
         if(block==lastMinedBlockAdded){
+            Transaction transaction = new Transaction("SYSTEM",entry.getKey(),  6L);
+            walletRep.save(transaction);
             return true;
         }else{
             return  false;
@@ -225,7 +234,7 @@ public class WalletControllerImpl implements WalletController {
     }
 
     @Override
-    public void transferMoneyWithSmr(SmartContract smrContractt) throws InterruptedException {
+    public int transferMoneyWithSmr(SmartContract smrContractt) throws InterruptedException {
 
 
         String token = smrContractt.getToken();
@@ -237,48 +246,65 @@ public class WalletControllerImpl implements WalletController {
 
         byte[] signature = transaction.getSign();
         boolean isCorrectSigned = TOMUtil.verifySignature(keys.get(token), transaction.getBytes(), signature);
-        System.out.println("isCorrectSigned " + isCorrectSigned);
+
         if (isCorrectSigned) {
             String toToken = transaction.getTo();
-           ;
             UserAccount from = getUser(token);
             UserAccount to = getUser(toToken);
             Long fromAmount = currentAmount(token);
             if(smrContractt.validate(fromAmount,from,to)){
-            System.out.println("Entrei aqui||||||||||||||||");
                 walletRep.save(transaction);
                 notMinedTransactions.add(transaction);
+                return 1;
             }
 
-        }else{
-            System.out.println("Money was not transferred");
-
         }
+        return 0;
+    }
 
+    @Override
+    public int transferMoneyWithPrivacy(Transaction transaction){
+        String token = transaction.getFrom();
+        String toToken = transaction.getTo();
+        UserAccount u = getUser(token);
+        UserAccount t = getUser(toToken);
+        byte[] signature = transaction.getSign();
+        if (u == null || t == null)
+           return 0;
+        boolean isCorrectSigned = TOMUtil.verifySignature(keys.get(token), transaction.getBytes(), signature);
+        if (isCorrectSigned) {
 
+            PublicKey fromKey = keys.get(token);
+            PublicKey toKey = keys.get(toToken);
+            Long fromAmount = currentAmount(transaction.getFrom());
+            if (fromAmount < transaction.getAmount() || transaction.getAmount() < 0)
+                return 0;
 
+            transaction.setFrom(String.valueOf(fromKey.hashCode()));
+            transaction.setTo(String.valueOf(toKey.hashCode()));
 
-
-
-
+            walletRep.save(transaction);
+            notMinedTransactions.add(transaction);
+            return 1;
+        } else {
+           return 0;
+        }
     }
 
 
     /**********************************************************/
 
     private UserAccount getUser(String userId){
-        System.out.println("Entrei no getUser " + userId);
         Optional<UserAccount> user = userRep.findById(userId);
-        System.out.println("Tenho o user");
         if(user.isEmpty())
             return null;
         return user.get() ;
     }
 
     private boolean isAuthorized(String id){
-        List<ITransaction> clientLedger = ledgerOfClientTransfers( id);
+        List<Transaction> clientLedger = ledgerOfClientTransfers( id);
         boolean authorized = false;
-        for(ITransaction t: clientLedger){
+        for(Transaction t: clientLedger){
             if(t.getTo().equals("FUND")){
                 authorized=true;
                 break;
@@ -287,21 +313,5 @@ public class WalletControllerImpl implements WalletController {
         return authorized;
     }
 
-    private Object fromBytes(byte[] bytes) {
-        ByteArrayInputStream bis = null;
-        ObjectInputStream ois = null;
-
-        try {
-            bis = new ByteArrayInputStream(bytes);
-            ois = new ObjectInputStream(bis);
-
-
-
-            return ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 }
