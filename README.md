@@ -21,9 +21,9 @@ O projeto foi implementado e executado num ambiente linux ubuntu
 # Inicializar a base de dados: 
 
 
-    sudo docker run -d -p 27017:27017 --name mongodb1 mongo:latest\
-    sudo docker run -d -p 27018:27017 --name mongodb2 mongo:latest\
-    sudo docker run -d -p 27019:27017 --name mongodb3 mongo:latest\
+    sudo docker run -d -p 27017:27017 --name mongodb1 mongo:latest
+    sudo docker run -d -p 27018:27017 --name mongodb2 mongo:latest
+    sudo docker run -d -p 27019:27017 --name mongodb3 mongo:latest
     sudo docker run -d -p 27020:27017 --name mongodb4 mongo:latest
 
 
