@@ -9,5 +9,6 @@ public enum Path {
         INIT,
         OBTAIN_LAST_MINED_BLOCK,
         PICK_NOT_MIN_TRANS,
-        MINE_BLOCK;
+        MINE_BLOCK,
+        TRANSFER_MONEY_SMRCONTRACT;
     }

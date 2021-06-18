@@ -1,6 +1,7 @@
 package Client.Services;
 
 import Client.Util.Block;
+import Client.Util.ITransaction;
 import Client.Util.Transaction;
 import Client.Exceptions.ServerAnswerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,9 +22,9 @@ public interface WalletClient {
 
     Long currentAmount(String token) throws ServerAnswerException;
 
-   List<Transaction>  ledgerOfGlobalTransfers() throws ServerAnswerException;
+   List<ITransaction>  ledgerOfGlobalTransfers() throws ServerAnswerException;
 
-    List<Transaction>  LedgerOfClientTransfers() throws ServerAnswerException;
+    List<ITransaction>  LedgerOfClientTransfers() throws ServerAnswerException;
 
     Block obtainLastMinedBlock() throws ServerAnswerException, JsonProcessingException;
 
@@ -32,5 +33,7 @@ public interface WalletClient {
     Block mineBlock() throws ServerAnswerException;
 
     boolean sendMinedBlock() throws ServerAnswerException;
+
+    void transferMoneyWithSmrContract(String toUser, Long amount) throws ServerAnswerException;
 
 }

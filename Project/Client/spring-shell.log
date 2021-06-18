@@ -724,3 +724,45 @@
 1623853673482:mine-block
 1623853684213:send-mine-block
 1623853786167:pick-not-mined-transactions
+1623965704437:obtain-money 10
+1623966049848:stacktrace
+1623966192836:obtain-money 10
+1623972111007:stacktrace
+1623972496483:obtain-money 10
+1623973827433:ledger
+1623973843913:client-ledger
+1623974219862:obtain-money 10
+1623974229945:current-amount
+1623974250917:ledger
+1623974540126:obtain-money 10
+1623976035822:current-amount
+1623976310097:obtain-money 10
+1623976349814:transfer-money rsales 5
+1623976353361:ledger
+1623976470920:current-amount
+1623979379113:obtain-money 10
+1623979386053:obtain-money 10
+1623979390117:help
+1623979413357:transfer-money-with-smr-contract rsales 2
+1623979766037:obtain-money 10
+1623979770597:obtain-money 10
+1623979775707:transfer-money-with-smr-contract rsales 2
+1623981202492:obtain-money 10
+1623981204867:ledger
+1623981217875:transfer-money-with-smr-contract rsales 5
+1623981473982:obtain-money 10
+1623981477337:transfer-money-with-smr-contract rsales 5
+1623982724707:obtain-money 10
+1623982726856:transfer-money-with-smr-contract rsales 5
+1623982904613:obtain-money 10
+1623982908474:transfer-money-with-smr-contract rsales 5
+1623983192451:obtain-money 10
+1623983195468:transfer-money-with-smr-contract rsales 5
+1623983200496:current-amount
+1623983228632:ledger
+1623983410758:ledger
+1623983606150:obtain-money 10
+1623983609824:transfer-money-with-smr-contract rsales 5
+1623983838065:obtain-money 10
+1623983839933:transfer-money-with-smr-contract rsales 5
+1623983853971:current-amount

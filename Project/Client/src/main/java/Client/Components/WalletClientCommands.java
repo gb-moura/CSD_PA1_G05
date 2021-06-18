@@ -1,6 +1,7 @@
 package Client.Components;
 
 import Client.Util.Block;
+import Client.Util.ITransaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +141,19 @@ public class WalletClientCommands {
         }
     }
 
+    @ShellMethod("Transfer money from a provided user to other provided user")
+    public String transferMoneyWithSmrContract( @ShellOption() String toUser, @ShellOption() Long amount)
+    {
+        try{
+            client.transferMoneyWithSmrContract(toUser,amount);
+            return "Money was transferred to " + toUser+".\n" +  "Amount: " + amount ;
+
+        }catch(ServerAnswerException e){
+            return e.getMessage();
+        }
+
+    }
+
 
 
 
@@ -156,19 +170,20 @@ public class WalletClientCommands {
 
 
 
-    private String transformListOfTransactionInString(List<Transaction> transactionsList){
+    private String transformListOfTransactionInString(List<ITransaction> transactionsList){
         if (transactionsList.isEmpty())
             return "No transactions performed.";
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("Ledger:\n");
 
-        for(Transaction transaction : transactionsList){
+        for(ITransaction transaction : transactionsList){
             stringBuffer.append(String.format("Transfer from %s to %s of %d\n",
                     transaction.getFrom(),transaction.getTo(),transaction.getAmount()));
         }
 
         return stringBuffer.toString();
     }
+
 
 
 }

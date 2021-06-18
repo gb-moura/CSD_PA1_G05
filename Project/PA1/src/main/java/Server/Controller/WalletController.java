@@ -1,13 +1,12 @@
 package Server.Controller;
 
-import Server.Util.Block;
-import Server.Util.SystemReply;
+import Server.Util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import Server.Util.Transaction;
 
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -32,6 +31,7 @@ WalletController {
     String OBTAIN_LAST_MINED_BLOCK="/obtainlastminedblock";
     String PICK_NOT_MIN_TRANS = "/picknotminedtransactions/{id}";
     String MINE_BLOCK ="/mineblock";
+    String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
 
 
     @PostMapping(
@@ -43,7 +43,7 @@ WalletController {
     @PostMapping(
             value = OBTAIN_COINS,
             consumes = APPLICATION_JSON_VALUE)
-    void obtainCoins(@RequestBody Object[] request);
+    void obtainCoins(@RequestBody Transaction transaction) throws IOException;
 
 
     @PostMapping(
@@ -59,12 +59,12 @@ WalletController {
     @GetMapping(
             value =  GET_LEDGER,
             produces = APPLICATION_JSON_VALUE)
-    List<Transaction> ledgerOfGlobalTransactions();
+    List<ITransaction> ledgerOfGlobalTransactions();
 
     @GetMapping(
             value =  GET_CLIENT_LEDGER,
             produces = APPLICATION_JSON_VALUE)
-    List<Transaction> ledgerOfClientTransfers(@PathVariable("id") String id);
+    List<ITransaction> ledgerOfClientTransfers(@PathVariable("id") String id);
 
 
     @GetMapping(
@@ -82,5 +82,10 @@ WalletController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     boolean sendMinedBlock(@RequestBody Map.Entry<String,Block> entry) throws InterruptedException;
+
+    @PostMapping(
+            value = TRANSFER_MONEY_SMRCONTRACT,
+            consumes = APPLICATION_JSON_VALUE)
+    void transferMoneyWithSmr(@RequestBody SmartContract smrContract) throws InterruptedException;
 }
 

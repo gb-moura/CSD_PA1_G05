@@ -1,13 +1,12 @@
 package Server.Controller;
 
-import Server.Util.Block;
-import Server.Util.SystemReply;
-import Server.Util.Transaction;
+import Server.Util.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ public interface AsyncWalletController {
     String OBTAIN_LAST_MINED_BLOCK="/obtainlastminedblock";
     String PICK_NOT_MIN_TRANS = "/picknotminedtransactions/{id}";
     String MINE_BLOCK ="/mineblock";
+    String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
 
 
 
@@ -43,7 +43,7 @@ public interface AsyncWalletController {
             value = OBTAIN_COINS,
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    SystemReply obtainCoins(@RequestBody Object[] request);
+    SystemReply obtainCoins(@RequestBody Transaction transaction) throws IOException;
 
 
 
@@ -84,5 +84,9 @@ public interface AsyncWalletController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE)
     SystemReply sendMinedBlock(@RequestBody Map.Entry<String,Block> entry);
+    @PostMapping(
+            value = TRANSFER_MONEY_SMRCONTRACT,
+            consumes = APPLICATION_JSON_VALUE)
+    SystemReply transferMoneyWithSmr(@RequestBody  SmartContract smrContract) throws InterruptedException;
 
 }

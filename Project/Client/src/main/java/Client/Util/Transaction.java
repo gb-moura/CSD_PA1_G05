@@ -1,23 +1,11 @@
 package Client.Util;
 
+
 import java.io.Serializable;
 
-public class Transaction implements Serializable {
 
-    public Transaction(){
+public class Transaction implements ITransaction,Serializable {
 
-    }
-    public Transaction(String toUser,Long amount){
-        this.to = toUser;
-        this.amount = amount;
-    }
-
-    public Transaction(String fromUser, String toUser,Long amount){
-        this(toUser,amount);
-        this.from = fromUser;
-    }
-
-    private Long id;
 
     private String from;
 
@@ -25,13 +13,29 @@ public class Transaction implements Serializable {
 
     private Long amount;
 
-    public Long getId() {
-        return id;
+    private byte[] sign;
+
+    private byte[] bytes;
+    public Transaction(){
+
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Transaction(String to, Long amount){
+        this.to = to;
+        this.amount = amount;
+        this.sign = new byte[2048];
+        this.bytes = new byte[2048];
     }
+
+    public Transaction(String from,String to, Long amount){
+        this.from = from;
+        this.to = to;
+        this.amount = amount;
+        this.sign = new byte[2048];
+        this.bytes = new byte[2048];
+    }
+
+
 
     public String getFrom() {
         return from;
@@ -55,5 +59,21 @@ public class Transaction implements Serializable {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public byte[] getSign() {
+        return sign;
+    }
+
+    public void setSign(byte[] sign) {
+        this.sign = sign;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
 }

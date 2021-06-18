@@ -2,6 +2,7 @@ package Server.Controller;
 
 import Server.Replication.ClientAsyncReplicator;
 import Server.Replication.Path;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +47,9 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
     }
 
     @Override
-    public SystemReply obtainCoins(Object[] request) {
+    public SystemReply obtainCoins( Transaction transaction) throws IOException {
         logger.info("Proxy received request createMoney");
-        Transaction transaction = (Transaction) fromBytes((byte[])request[2]);
+
             return clientAsyncReplicator.invokeOrderedReplication(transaction,Path.OBTAIN_COINS);
 
     }
@@ -97,6 +98,12 @@ public class WalletControllerReplicatorImp implements AsyncWalletController {
     @Override
     public SystemReply sendMinedBlock(Map.Entry<String,Block> entry) {
         return clientAsyncReplicator.invokeOrderedReplication(entry,Path.MINE_BLOCK);
+    }
+
+    @Override
+    public SystemReply transferMoneyWithSmr(SmartContract smrContract) throws InterruptedException {
+        logger.info("Proxy received request transferMoney with smart contract");
+        return clientAsyncReplicator.invokeUnorderedReplication(smrContract,Path.TRANSFER_MONEY_SMRCONTRACT);
     }
 
 

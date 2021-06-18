@@ -19,21 +19,20 @@ public class Block implements Serializable {
 
 
 
-    private List<Transaction> data;
-   // private long timestamp;
+    private List<ITransaction> data;
+    // private long timestamp;
     private int nonce;
 
     public Block(){
 
     }
 
-    public Block(List<Transaction> data, String previousHash){
-        hash=" ";
+    public Block(List<ITransaction> data, String previousHash){
+        this.hash = " ";
         this.previousHash=previousHash;
+        //this.timestamp=timestamp;
         this.data =data;
         nonce=0;
-
-      //  this.timestamp=timestamp;
 
     }
 
@@ -69,22 +68,23 @@ public class Block implements Serializable {
 
 
 
+
     public String getHash() {
         return this.hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
     }
 
     public String getPreviousHash() {
         return this.previousHash;
     }
 
-   // public long getTimestamp(){return this.timestamp;}
-    public List<Transaction> getData() {
+    //   public long getTimestamp(){return this.timestamp;}
+
+
+    public List<ITransaction> getData() {
         return data;
     }
 
-
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 }

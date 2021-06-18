@@ -1,10 +1,7 @@
-package Server.Util;
+package Client.Util;
 
-
-import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
-import java.security.PublicKey;
 
 
 public class UserAccount implements Serializable {

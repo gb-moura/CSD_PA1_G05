@@ -1,28 +1,22 @@
 package Server.Util;
 
 
-
-import org.springframework.data.annotation.Id;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import java.io.Serializable;
+import java.util.Arrays;
 
 
-public class Transaction implements Serializable {
-
-
- //
-
+public class Transaction implements ITransaction,Serializable {
 
 
     private String from;
-
 
     private String to;
 
     private Long amount;
 
+    private byte[] sign;
+
+    private byte[] bytes;
     public Transaction(){
 
     }
@@ -30,12 +24,17 @@ public class Transaction implements Serializable {
     public Transaction(String to, Long amount){
         this.to = to;
         this.amount = amount;
+        this.sign = new byte[2048];
+        this.bytes = new byte[2048];
     }
 
-    public Transaction(String from,String to, Long amount){
+
+    public Transaction(String from, String to, Long amount){
         this.from = from;
         this.to = to;
         this.amount = amount;
+        this.sign = new byte[2048];
+        this.bytes = new byte[2048];
     }
 
 
@@ -63,4 +62,21 @@ public class Transaction implements Serializable {
     public void setAmount(Long amount) {
         this.amount = amount;
     }
+
+    public byte[] getSign() {
+        return sign;
+    }
+
+    public void setSign(byte[] sign) {
+        this.sign = sign;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
 }

@@ -4,19 +4,16 @@ import Client.Exceptions.ServerAnswerException;
 import Client.Handlers.RestTemplateHeaderModifierInterceptor;
 import Client.Handlers.RestTemplateResponseErrorHandler;
 import Client.Util.Block;
+import Client.Util.ITransaction;
+import Client.Util.SmartContract;
 import Client.Util.Transaction;
-import bftsmart.reconfiguration.util.RSAKeyLoader;
-import bftsmart.tom.util.RSAKeyPairGenerator;
 import bftsmart.tom.util.TOMUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import org.apache.catalina.startup.Tomcat;
 import org.glassfish.jersey.internal.guava.Maps;
-import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,15 +43,16 @@ public class WalletClientImpl implements WalletClient {
     @Value("${token}")
     private String token;
 
-    private static String WALLET_CONTROLLER = "/money";
-    private static String OBTAIN_MONEY = "/obtain";
-    private static String TRANSFER_MONEY = "/transfer";
-    private static String GET_MONEY = "/current";
-    private static String GET_LEDGER = "/ledger";
-    private static String INIT = "/createClient";
-    String OBTAIN_LAST_MINED_BLOCK = "/obtainlastminedblock";
-    String PICK_NOT_MIN_TRANS = "/picknotminedtransactions";
-    String MINE_BLOCK = "/mineblock";
+    private static final String WALLET_CONTROLLER = "/money";
+    private static final String OBTAIN_MONEY = "/obtain";
+    private static final String TRANSFER_MONEY = "/transfer";
+    private static final String GET_MONEY = "/current";
+    private static final String GET_LEDGER = "/ledger";
+    private static final String INIT = "/createClient";
+    private static final String OBTAIN_LAST_MINED_BLOCK = "/obtainlastminedblock";
+    private static final String PICK_NOT_MIN_TRANS = "/picknotminedtransactions";
+    private static final String MINE_BLOCK = "/mineblock";
+    private static final String TRANSFER_MONEY_SMRCONTRACT = "/transferwithsmr";
 
     private Block blockReceived;
 
@@ -116,19 +114,23 @@ public class WalletClientImpl implements WalletClient {
 
     @Override
     public void obtainCoins(Long amount) throws ServerAnswerException, NoSuchAlgorithmException {
-        Transaction transaction = new Transaction(token, amount);
-        Object[] request = new Object[3];
-        byte[] sign = TOMUtil.signMessage(privateKey, toBytes(transaction));
-        request[0] = token;
-        request[1] = sign;
-        request[2] = toBytes(transaction);
+        ITransaction transaction = new Transaction(token, amount);
 
-        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, request, restTemplate);
+        byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
+        byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
+        transaction.setSign(sign);
+        transaction.setBytes(byteTransaction);
+
+        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + OBTAIN_MONEY, transaction, restTemplate);
     }
 
     @Override
     public void transferMoney(String toUser, Long amount) throws ServerAnswerException {
-        Transaction transaction = new Transaction(token, toUser, amount);
+        ITransaction transaction = new Transaction(token, toUser, amount);
+        byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
+        byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
+        transaction.setSign(sign);
+        transaction.setBytes(byteTransaction);
 
         new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY, transaction, restTemplate);
     }
@@ -140,12 +142,12 @@ public class WalletClientImpl implements WalletClient {
     }
 
     @Override
-    public List<Transaction> ledgerOfGlobalTransfers() throws ServerAnswerException {
+    public List<ITransaction> ledgerOfGlobalTransfers() throws ServerAnswerException {
         return getLedgerFromPath(BASE + WALLET_CONTROLLER + GET_LEDGER);
     }
 
     @Override
-    public List<Transaction> LedgerOfClientTransfers() throws ServerAnswerException {
+    public List<ITransaction> LedgerOfClientTransfers() throws ServerAnswerException {
         return getLedgerFromPath(BASE + WALLET_CONTROLLER + GET_LEDGER + "/" + token);
     }
 
@@ -186,21 +188,31 @@ public class WalletClientImpl implements WalletClient {
     @Override
     public boolean sendMinedBlock() throws ServerAnswerException {
         Map.Entry<String, Block> blockEntry = Maps.immutableEntry(token, blockReceived);
-       /* Object[] b = new Object[100];
-        b[1] = token;
-        b[2] = blockReceived;*/
         Object answer = new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + MINE_BLOCK, blockEntry, restTemplate);
         return Boolean.parseBoolean(answer.toString());
     }
 
+    @Override
+    public void transferMoneyWithSmrContract(String toUser, Long amount) throws ServerAnswerException {
+        Transaction transaction = new Transaction(token,toUser,amount);
+        byte[] byteTransaction = new Gson().toJson(transaction).getBytes();
+        byte[] sign = TOMUtil.signMessage(privateKey, byteTransaction);
+        transaction.setSign(sign);
+        transaction.setBytes(byteTransaction);
+        SmartContract smrContract = new SmartContract(token,byteTransaction,sign,amount,token,toUser);
 
-    private List<Transaction> getLedgerFromPath(String path) throws ServerAnswerException {
+
+
+        new ExtractAnswer().extractAnswerPost(BASE + WALLET_CONTROLLER + TRANSFER_MONEY_SMRCONTRACT , smrContract, restTemplate);
+
+    }
+
+
+    private List<ITransaction> getLedgerFromPath(String path) throws ServerAnswerException {
 
         Object transactionsJson = new ExtractAnswer().extractAnswerGet(path, restTemplate);
-        System.out.println(transactionsJson);
-        List<Transaction> t = Arrays.asList(new Gson().fromJson(transactionsJson.toString(), Transaction[].class));
 
-        return t;
+        return Arrays.asList(new Gson().fromJson(transactionsJson.toString(), Transaction[].class));
     }
 
     private byte[] toBytes(Object obj) {
