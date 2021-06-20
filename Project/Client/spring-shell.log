@@ -866,3 +866,18 @@
 1624036851247:mine-block
 1624036854608:send-mine-block
 1624036871006:current-amount
+1624211032368:obtain-money 10
+1624211057852:ledger
+1624215270501:transfer-money rsales 2
+1624215273459:ledger
+1624215278518:current-amount
+1624215280965:client-ledger
+1624215302751:transfer-money rsale 2
+1624215306866:client-ledger
+1624215382593:transfer-money-with-privacy rsale 2
+1624215396169:transfer-money-with-smr-contract rsale 2
+1624215411054:transfer-money FUND 1
+1624215416237:pick-not-mined-transactions
+1624215425875:mine-block
+1624215430415:send-mine-block
+1624215461077:get-last-mined-block
